@@ -502,7 +502,7 @@
                             <div id="kid-xp-bar" class="h-full bg-gradient-to-r from-sky-400 to-pink-400 rounded-full transition-all duration-500" style="width: 10%;"></div>
                         </div>
                         <div class="flex justify-between text-[11px] text-slate-400 font-bold mt-1.5 px-1">
-                            <span id="kid-xp-text">0 / 500 XP</span>
+                            <span id="kid-xp-text">0 / 800 XP</span>
                             <span>Kiếm thêm XP bằng cách trả lời đúng bài tập!</span>
                         </div>
                     </div>
@@ -953,7 +953,7 @@
         <div id="practice-panel-bubble" class="hidden space-y-4">
             <!-- Màn hình chào mừng Bong Bóng Từ Vựng -->
             <div id="bubble-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-sky-100 text-center space-y-6">
-                <div class="w-24 h-24 bg-sky-100 text-blue-500 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
+                <div class="w-24 h-24 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
                     <i class="fa-solid fa-tint mr-1.5"></i>
                 </div>
                 <div>
@@ -1990,13 +1990,13 @@
 
         // ==== NHIỆM VỤ HÀNG NGÀY (Daily Quests) ====
         const DAILY_QUEST_TEMPLATE = [
-            { id: 'test_correct', label: 'Trắc Nghiệm', icon: '🏆', target: 5, reward: { xp: 20, coins: 15 } },
-            { id: 'spelling_correct', label: 'Điền Chữ', icon: '✏️', target: 3, reward: { xp: 15, coins: 10 } },
-            { id: 'sentence_correct', label: 'Xếp Câu', icon: '🧩', target: 2, reward: { xp: 15, coins: 10 } },
-            { id: 'memory_correct', label: 'Trí Nhớ', icon: '🧠', target: 4, reward: { xp: 15, coins: 10 } },
-            { id: 'bubble_correct', label: 'Bong Bóng', icon: '💧', target: 6, reward: { xp: 15, coins: 10 } },
-            { id: 'speaking_correct', label: 'Phát Âm', icon: '🎤', target: 4, reward: { xp: 15, coins: 10 } },
-            { id: 'scramble_correct', label: 'Ghép Từ', icon: '🔤', target: 5, reward: { xp: 15, coins: 10 } }
+            { id: 'test_correct', label: 'Trắc Nghiệm', icon: '🏆', target: 10, reward: { xp: 20, coins: 15 } },
+            { id: 'spelling_correct', label: 'Điền Chữ', icon: '✏️', target: 6, reward: { xp: 15, coins: 10 } },
+            { id: 'sentence_correct', label: 'Xếp Câu', icon: '🧩', target: 4, reward: { xp: 15, coins: 10 } },
+            { id: 'memory_correct', label: 'Trí Nhớ', icon: '🧠', target: 8, reward: { xp: 15, coins: 10 } },
+            { id: 'bubble_correct', label: 'Bong Bóng', icon: '💧', target: 12, reward: { xp: 15, coins: 10 } },
+            { id: 'speaking_correct', label: 'Phát Âm', icon: '🎤', target: 8, reward: { xp: 15, coins: 10 } },
+            { id: 'scramble_correct', label: 'Ghép Từ', icon: '🔤', target: 10, reward: { xp: 15, coins: 10 } }
         ];
         const DAILY_CHEST_REWARD = { xp: 30, coins: 50 };
 
@@ -2354,7 +2354,7 @@
             updateStreakOnActivity();
             logDailyActivity();
 
-            const nextLevelXPThreshold = 500;
+            const nextLevelXPThreshold = 800;
             const currentLevel = Math.floor(kidXP / nextLevelXPThreshold) + 1;
             const oldLevel = parseInt(getPData('kid_level_raw')) || 1;
 
@@ -2497,7 +2497,7 @@
             if (!priceText) return;
 
             const tier = getCurrentEggTier();
-            const currentLevel = Math.floor(kidXP / 500) + 1;
+            const currentLevel = Math.floor(kidXP / 800) + 1;
             const hatchedToday = getEggsHatchedToday();
             const remainingToday = Math.max(0, MAX_EGGS_PER_DAY - hatchedToday);
             const isLevelLocked = currentLevel < tier.requiredLevel;
@@ -2549,7 +2549,7 @@
 
         function buyMagicEgg(free = false) {
             const tier = getCurrentEggTier();
-            const currentLevel = Math.floor(kidXP / 500) + 1;
+            const currentLevel = Math.floor(kidXP / 800) + 1;
 
             if (!free) {
                 // 1. Kiểm tra giới hạn số trứng được ấp trong ngày
@@ -2730,15 +2730,15 @@
 
             renderDailyQuests();
 
-            const level = Math.floor(kidXP / 500) + 1;
+            const level = Math.floor(kidXP / 800) + 1;
             document.getElementById('kid-level-top').innerText = `Lvl ${level}`;
             document.getElementById('kid-level-text').innerText = `${getLevelTitle(level)} (Lvl ${level})`;
 
             checkBadges();
 
-            const xpPercentage = kidXP % 500;
-            document.getElementById('kid-xp-bar').style.width = `${(xpPercentage / 500) * 100}%`;
-            document.getElementById('kid-xp-text').innerText = `${xpPercentage} / 500 XP`;
+            const xpPercentage = kidXP % 800;
+            document.getElementById('kid-xp-bar').style.width = `${(xpPercentage / 800) * 100}%`;
+            document.getElementById('kid-xp-text').innerText = `${xpPercentage} / 800 XP`;
 
             // Vẽ Vườn Thú Cưng
             const petContainer = document.getElementById('pet-garden-container');
@@ -3086,7 +3086,7 @@
             setPData('daily_vocab', JSON.stringify(vocabulary));
             setPData('kid_xp', kidXP);
             setPData('kid_coins', kidCoins);
-            setPData('kid_level_raw', data.kidLevelRaw || (Math.floor(kidXP / 500) + 1));
+            setPData('kid_level_raw', data.kidLevelRaw || (Math.floor(kidXP / 800) + 1));
             setPData('kid_pets', JSON.stringify(kidPets));
             setPData('kid_streak', kidStreak);
             setPData('kid_best_streak', kidBestStreak);
@@ -4414,7 +4414,7 @@
             if (kidStreak >= 7) awardBadge('streak_7');
             if (kidStreak >= 30) awardBadge('streak_30');
 
-            const level = Math.floor(kidXP / 500) + 1;
+            const level = Math.floor(kidXP / 800) + 1;
             if (level >= 5) awardBadge('level_5');
             if (level >= 10) awardBadge('level_10');
 
@@ -4431,7 +4431,7 @@
             const gridEl = document.getElementById('badge-grid-container');
             if (!gridEl) return;
 
-            const level = Math.floor(kidXP / 500) + 1;
+            const level = Math.floor(kidXP / 800) + 1;
             if (titleEl) titleEl.innerText = getLevelTitle(level);
             if (levelEl) levelEl.innerText = `Cấp Độ ${level}`;
             if (progressEl) progressEl.innerText = `Đã mở khóa: ${kidBadges.length} / ${BADGE_DEFINITIONS.length} huy hiệu`;
@@ -4593,7 +4593,7 @@
         // ==== TRANG TIẾN BỘ CHO PHỤ HUYNH ====
 
         function renderParentProgress() {
-            const level = Math.floor(kidXP / 500) + 1;
+            const level = Math.floor(kidXP / 800) + 1;
             document.getElementById('parent-level-text').innerText = `${getLevelTitle(level)} - Cấp ${level}`;
             document.getElementById('parent-words-text').innerText = `${vocabulary.length} từ`;
             document.getElementById('parent-streak-text').innerText = `${kidStreak} ngày (Kỷ lục ${kidBestStreak})`;
