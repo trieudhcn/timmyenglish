@@ -3303,6 +3303,14 @@
             const searchInput = document.getElementById('vocab-search');
             const clearBtn = document.getElementById('btn-clear-search');
             const keyword = searchInput.value.trim().toLowerCase();
+			// Ghi nhớ các nhóm ngày đang được mở trước khi vẽ lại, để giữ đúng trạng thái sau khi sửa/xóa từ
+            const previouslyExpandedDates = new Set();
+            container.querySelectorAll('[id^="words-of-"]').forEach(el => {
+                if (!el.classList.contains('hidden')) {
+                    previouslyExpandedDates.add(el.id.replace('words-of-', ''));
+                }
+            });
+            const scrollPos = window.scrollY;
             container.innerHTML = '';
 
             if (keyword.length > 0) clearBtn.classList.remove('hidden');
@@ -3342,8 +3350,8 @@
             Object.keys(groups).forEach(date => {
                 const dateSection = document.createElement('div');
                 dateSection.className = "bg-white rounded-[2rem] shadow-sm border-2 border-slate-100 overflow-hidden";
-                const isHiddenClass = keyword ? "" : "hidden";
-                const isArrowRotatedClass = keyword ? "rotate-180" : "";
+                const isHiddenClass = (keyword || previouslyExpandedDates.has(date)) ? "" : "hidden";
+                const isArrowRotatedClass = (keyword || previouslyExpandedDates.has(date)) ? "rotate-180" : "";
 
                 dateSection.innerHTML = `
                     <button onclick="toggleDateGroup('${date}')" class="w-full flex flex-wrap justify-between items-center gap-2 px-4 sm:px-5 py-4 bg-slate-50 hover:bg-sky-50/50 transition border-b-2 border-slate-100 text-left">
@@ -3409,6 +3417,8 @@
                     grid.appendChild(item);
                 });
             });
+			// Khôi phục lại đúng vị trí cuộn cũ sau khi vẽ lại (đợi 1 khung hình để trình duyệt tính lại chiều cao trang)
+            requestAnimationFrame(() => window.scrollTo(0, scrollPos));
         }
 
         function toggleDateGroup(date) {
