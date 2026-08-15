@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <script type="text/javascript" nonce="3a43baad5d9a481696a2eca72b7" src="//local.adguard.org?ts=1785426357339&amp;type=content-script&amp;dmn=sv66.dataonline.vn:2222&amp;url=https%3A%2F%2Fsv66.dataonline.vn%3A2222%2Fapi%2Ffilemanager%2Fdownload%3Fpath%3D%252Fdomains%252Fvitinhthaithinh.site%252Fpublic_html%252Ftimmy_english%252Findex.html&amp;app=chrome.exe&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=0"></script><script type="text/javascript" nonce="3a43baad5d9a481696a2eca72b7" src="//local.adguard.org?ts=1785426357339&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="icon" type="image/png" sizes="32x32" href="https://github.com/user-attachments/assets/a829e9a7-296c-4566-84e0-d75f23da5ccc">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/user-attachments/assets/a829e9a7-296c-4566-84e0-d75f23da5ccc">
     <title>Timmy English - Học Tiếng Anh Cực Vui!</title>
 
     <!-- Cấu hình cho "Thêm vào Màn hình chính" - chạy như 1 app thật, ẩn thanh địa chỉ trình duyệt -->
@@ -954,7 +954,7 @@
             <!-- Màn hình chào mừng Bong Bóng Từ Vựng -->
             <div id="bubble-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-sky-100 text-center space-y-6">
                 <div class="w-24 h-24 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
-                    <i class="fa-solid fa-tint mr-1.5"></i>
+                    💧
                 </div>
                 <div>
                     <h2 class="text-2xl font-light text-slate-800">Bong Bóng Từ Vựng</h2>
@@ -1122,6 +1122,18 @@
             <div class="bg-white p-4 sm:p-6 rounded-[2.5rem] shadow-sm border-4 border-slate-100">
                 <h3 class="text-sm font-black text-slate-600 uppercase tracking-wide mb-4">Số Câu Trả Lời Đúng - 7 Ngày Gần Nhất</h3>
                 <div id="parent-chart-container" class="flex items-end justify-between gap-2"></div>
+            </div>
+
+            <!-- Từ Cần Ôn Tập (Smart Review) -->
+            <div class="bg-white p-4 sm:p-6 rounded-[2.5rem] shadow-sm border-4 border-slate-100">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xl">🎯</span>
+                    <h3 class="text-sm font-black text-slate-600 uppercase tracking-wide">Từ Cần Ôn Tập</h3>
+                </div>
+                <p class="text-xs text-slate-400 font-semibold mb-4">Ứng dụng tự động cho các từ này xuất hiện nhiều hơn trong lúc chơi để bé luyện chắc hơn nha!</p>
+                <div id="review-words-container" class="space-y-2">
+                    <!-- Danh sách từ cần ôn sẽ hiển thị tại đây -->
+                </div>
             </div>
         </section>
 
@@ -1910,6 +1922,55 @@
 
         // Khởi tạo tài sản trẻ em
         let vocabulary = JSON.parse(getPData('daily_vocab')) || [];
+
+        // ==== ÔN TẬP THÔNG MINH (Smart Review) ====
+        // wordStats[wordId] = { correct: số lần đúng, wrong: số lần sai, lastSeen: thời điểm gần nhất }
+        let wordStats = JSON.parse(getPData('word_stats')) || {};
+
+        function recordWordAttempt(wordId, isCorrect) {
+            if (wordId === undefined || wordId === null) return;
+            const key = String(wordId);
+            if (!wordStats[key]) wordStats[key] = { correct: 0, wrong: 0, lastSeen: 0 };
+            if (isCorrect) wordStats[key].correct++;
+            else wordStats[key].wrong++;
+            wordStats[key].lastSeen = Date.now();
+            setPData('word_stats', JSON.stringify(wordStats));
+        }
+
+        // Từ chưa từng luyện hoặc hay sai sẽ có điểm ưu tiên cao hơn, dễ được chọn hơn trong các lượt chơi tiếp theo
+        function getWordPriorityScore(word) {
+            const stats = wordStats[String(word.id)];
+            if (!stats || (stats.correct + stats.wrong) === 0) return 8; // Từ mới - ưu tiên khá cao để được luyện qua
+            const total = stats.correct + stats.wrong;
+            const errorRate = stats.wrong / total;
+            return 1 + errorRate * 12; // Sai càng nhiều thì điểm ưu tiên càng cao, từ đã thuộc vẫn có cơ hội xuất hiện lại
+        }
+
+        // Chọn ngẫu nhiên có trọng số (không lặp lại) - từ điểm ưu tiên cao có xác suất được chọn cao hơn
+        function weightedSampleWords(pool, count) {
+            const items = pool.map(w => ({ word: w, score: getWordPriorityScore(w) }));
+            const remaining = [...items];
+            const selected = [];
+
+            while (selected.length < count && remaining.length > 0) {
+                const totalWeight = remaining.reduce((sum, item) => sum + item.score, 0);
+                let rand = Math.random() * totalWeight;
+                let pickedIndex = remaining.length - 1;
+                for (let i = 0; i < remaining.length; i++) {
+                    rand -= remaining[i].score;
+                    if (rand <= 0) { pickedIndex = i; break; }
+                }
+                selected.push(remaining[pickedIndex].word);
+                remaining.splice(pickedIndex, 1);
+            }
+            return selected;
+        }
+
+        // Chọn 1 từ ngẫu nhiên có trọng số (dùng cho game chọn từng từ 1 như Bong Bóng)
+        function pickWeightedWord(pool) {
+            if (pool.length === 0) return null;
+            return weightedSampleWords(pool, 1)[0];
+        }
         if (vocabulary.length === 0) {
             vocabulary = [...DEFAULT_KID_VOCAB];
             setPData('daily_vocab', JSON.stringify(vocabulary));
@@ -2964,7 +3025,8 @@
                 dailyQuests: dailyQuests,
                 activityLog: JSON.parse(getPData('kid_activity_log')) || {},
                 bubbleBestScore: bubbleBestScore,
-                bubbleDifficulty: bubbleDifficulty
+                bubbleDifficulty: bubbleDifficulty,
+                wordStats: wordStats
             };
         }
 
@@ -3082,6 +3144,7 @@
             dailyQuests = data.dailyQuests || null;
             bubbleBestScore = data.bubbleBestScore || 0;
             bubbleDifficulty = data.bubbleDifficulty || 'normal';
+            wordStats = data.wordStats || {};
 
             setPData('daily_vocab', JSON.stringify(vocabulary));
             setPData('kid_xp', kidXP);
@@ -3100,6 +3163,7 @@
             setPData('kid_activity_log', JSON.stringify(data.activityLog || {}));
             setPData('kid_bubble_best', bubbleBestScore);
             setPData('kid_bubble_difficulty', bubbleDifficulty);
+            setPData('word_stats', JSON.stringify(wordStats));
 
             if (options.silent) return; // Đang hydrate ngầm từ cloud lúc khởi động - không cần vẽ lại UI hay báo gì cả, để finishAppStartup() lo phần hiển thị
 
@@ -3303,7 +3367,8 @@
             const searchInput = document.getElementById('vocab-search');
             const clearBtn = document.getElementById('btn-clear-search');
             const keyword = searchInput.value.trim().toLowerCase();
-			// Ghi nhớ các nhóm ngày đang được mở trước khi vẽ lại, để giữ đúng trạng thái sau khi sửa/xóa từ
+
+            // Ghi nhớ các nhóm ngày đang được mở trước khi vẽ lại, để giữ đúng trạng thái sau khi sửa/xóa từ
             const previouslyExpandedDates = new Set();
             container.querySelectorAll('[id^="words-of-"]').forEach(el => {
                 if (!el.classList.contains('hidden')) {
@@ -3311,6 +3376,7 @@
                 }
             });
             const scrollPos = window.scrollY;
+
             container.innerHTML = '';
 
             if (keyword.length > 0) clearBtn.classList.remove('hidden');
@@ -3417,7 +3483,8 @@
                     grid.appendChild(item);
                 });
             });
-			// Khôi phục lại đúng vị trí cuộn cũ sau khi vẽ lại (đợi 1 khung hình để trình duyệt tính lại chiều cao trang)
+
+            // Khôi phục lại đúng vị trí cuộn cũ sau khi vẽ lại (đợi 1 khung hình để trình duyệt tính lại chiều cao trang)
             requestAnimationFrame(() => window.scrollTo(0, scrollPos));
         }
 
@@ -3494,7 +3561,7 @@
                 return;
             }
 
-            spellingSessionWords = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, Math.min(10, vocabulary.length));
+            spellingSessionWords = weightedSampleWords(vocabulary, Math.min(10, vocabulary.length));
             currentSpellingIndex = 0;
             isSpellingAnswered = false;
 
@@ -3585,6 +3652,7 @@
                 playSoundEffect('correct');
                 addKidAssets(10, 5); // Thưởng +10 XP, +5 Xu
                 updateQuestProgress('spelling_correct');
+                recordWordAttempt(currentSpellingWord.id, true);
                 speakListWord(currentSpellingWord.english, 'us'); // Đọc từ cho bé nghe khi trả lời đúng
 
                 document.getElementById('spelling-input').disabled = true;
@@ -3621,6 +3689,7 @@
                 }, 100);
             } else {
                 playSoundEffect('wrong');
+                recordWordAttempt(currentSpellingWord.id, false);
                 const errFeedback = document.getElementById('spelling-error-feedback');
                 errFeedback.classList.remove('hidden');
                 errFeedback.classList.add('animate-shake');
@@ -3654,7 +3723,7 @@
                 return;
             }
 
-            testSessionWords = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, Math.min(10, vocabulary.length));
+            testSessionWords = weightedSampleWords(vocabulary, Math.min(10, vocabulary.length));
             currentTestIndex = 0;
             currentTestScore = 0;
             isAnswerProcessing = false;
@@ -3755,6 +3824,7 @@
             if (isAnswerProcessing) return;
             isAnswerProcessing = true;
             playSoundEffect('timeout');
+            recordWordAttempt(currentTestData.correctId, false);
 
             const optionsContainer = document.getElementById('test-options');
             Array.from(optionsContainer.children).forEach((btn, idx) => {
@@ -3783,10 +3853,12 @@
                 addKidAssets(10, 5); // +10 XP, +5 Coins
                 updateQuestProgress('test_correct');
                 currentTestScore++;
+                recordWordAttempt(currentTestData.correctId, true);
                 btnEl.className = "w-full text-left p-4 rounded-2xl border-2 border-green-500 bg-green-100 text-green-800 font-black flex items-center justify-between animate-happy";
                 btnEl.innerHTML += ` <i class="fa-solid fa-circle-check text-green-600 text-xl"></i>`;
             } else {
                 playSoundEffect('wrong');
+                recordWordAttempt(currentTestData.correctId, false);
                 btnEl.className = "w-full text-left p-4 rounded-2xl border-2 border-red-400 bg-red-100 text-red-800 font-black flex items-center justify-between animate-shake";
                 btnEl.innerHTML += ` <i class="fa-solid fa-circle-xmark text-red-500 text-xl"></i>`;
 
@@ -3878,7 +3950,7 @@
                 return;
             }
 
-            gameSessionWords = [...validWords].sort(() => 0.5 - Math.random()).slice(0, Math.min(10, validWords.length));
+            gameSessionWords = weightedSampleWords(validWords, Math.min(10, validWords.length));
             currentGameIndex = 0;
 
             document.getElementById('game-start-screen').classList.add('hidden');
@@ -3982,6 +4054,7 @@
                 playSoundEffect('correct');
                 addKidAssets(15, 10); // +15 XP, +10 Coins
                 updateQuestProgress('sentence_correct');
+                recordWordAttempt(gameSessionWords[currentGameIndex].id, true);
 
                 feedbackEl.className = "text-sm font-black text-emerald-600 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-200 animate-bounce";
                 feedbackEl.innerHTML = `🎉 CHÍNH XÁC RỒI! +15 XP ⭐ +10 Xu 💰`;
@@ -3998,6 +4071,7 @@
                 }, 2200);
             } else {
                 playSoundEffect('wrong');
+                recordWordAttempt(gameSessionWords[currentGameIndex].id, false);
                 feedbackEl.className = "text-sm font-black text-red-500 bg-red-50 px-4 py-2 rounded-2xl border border-red-200 animate-shake";
                 feedbackEl.innerHTML = `❌ Chưa chính xác rồi bé ơi! Thử lại nhé!`;
                 gameAdvanceTimer = setTimeout(() => { feedbackEl.className = "text-sm font-black text-center"; feedbackEl.innerText = ""; }, 2000);
@@ -4029,7 +4103,7 @@
 
             // Tối đa 8 cặp (16 thẻ) để lưới vẫn gọn gàng dễ nhìn với bé
             const pairCount = Math.min(8, vocabulary.length);
-            memorySessionPairs = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, pairCount);
+            memorySessionPairs = weightedSampleWords(vocabulary, pairCount);
 
             memoryCards = [];
             memorySessionPairs.forEach(word => {
@@ -4104,6 +4178,8 @@
                 playSoundEffect('correct');
                 addKidAssets(5, 3);
                 updateQuestProgress('memory_correct');
+                recordWordAttempt(cardA.wordId, true);
+                recordWordAttempt(cardA.wordId, true);
 
                 [uidA, uidB].forEach(uid => {
                     const wrapperEl = document.getElementById(`memory-wrapper-${uid}`);
@@ -4279,7 +4355,7 @@
             const area = document.getElementById('bubble-game-area');
             if (!area || vocabulary.length === 0) return;
 
-            const word = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+            const word = pickWeightedWord(vocabulary);
             const displayText = word.vietnamese;
             const targetAnswer = word.english;
             const hintText = buildEnglishHint(word.english);
@@ -4299,7 +4375,7 @@
             `;
             area.appendChild(el);
 
-            const bubbleObj = { id, el, target: targetAnswer, matched: false };
+            const bubbleObj = { id, el, target: targetAnswer, wordId: word.id, matched: false };
             bubbleActiveList.push(bubbleObj);
 
             requestAnimationFrame(() => {
@@ -4337,6 +4413,7 @@
             playSoundEffect('correct');
             addKidAssets(8, 4);
             updateQuestProgress('bubble_correct');
+            recordWordAttempt(bubbleObj.wordId, true);
 
             scheduleNextBubble();
         }
@@ -4349,6 +4426,7 @@
             if (!bubbleGameRunning) return;
 
             playSoundEffect('wrong');
+            recordWordAttempt(bubbleObj.wordId, false);
             bubbleLives--;
             renderBubbleLives();
 
@@ -4638,6 +4716,42 @@
                 `;
                 chartContainer.appendChild(barWrap);
             });
+
+            renderReviewWords();
+        }
+
+        // Hiện các từ có tỉ lệ sai cao nhất, giúp phụ huynh biết bé đang gặp khó ở đâu
+        function renderReviewWords() {
+            const container = document.getElementById('review-words-container');
+            if (!container) return;
+
+            const wordsWithStats = vocabulary
+                .map(w => {
+                    const stats = wordStats[String(w.id)];
+                    const total = stats ? stats.correct + stats.wrong : 0;
+                    const errorRate = total > 0 ? stats.wrong / total : 0;
+                    return { word: w, stats, total, errorRate };
+                })
+                .filter(item => item.total >= 2 && item.errorRate > 0) // Chỉ hiện từ đã luyện đủ nhiều lần và có sai
+                .sort((a, b) => b.errorRate - a.errorRate || b.stats.wrong - a.stats.wrong)
+                .slice(0, 8);
+
+            if (wordsWithStats.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 font-semibold text-center py-6">Chưa có dữ liệu, hoặc bé đang làm rất tốt, chưa có từ nào cần ôn thêm cả! 🎉</p>';
+                return;
+            }
+
+            container.innerHTML = wordsWithStats.map(item => {
+                const pct = Math.round(item.errorRate * 100);
+                return `
+                    <div class="flex items-center gap-3 p-2.5 rounded-2xl border-2 border-amber-100 bg-amber-50/50">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-slate-700 truncate">${item.word.english} <span class="text-slate-400 font-semibold">- ${item.word.vietnamese}</span></p>
+                        </div>
+                        <span class="text-[11px] font-black text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full shrink-0">Sai ${pct}% (${item.stats.wrong}/${item.total})</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         // ==== LUYỆN GIAO TIẾP ====
@@ -5061,7 +5175,7 @@
 
         function getSpeakingPoolSource(mode) {
             if (mode === 'vocab') {
-                return vocabulary.map(w => ({ text: w.english, meaning: w.vietnamese, ipaUk: w.ipaUk || '', ipaUs: w.ipaUs || '' }));
+                return vocabulary.map(w => ({ id: w.id, text: w.english, meaning: w.vietnamese, ipaUk: w.ipaUk || '', ipaUs: w.ipaUs || '' }));
             }
             const fromCommon = commonSentences.map(s => ({ text: s.english, meaning: s.vietnamese, ipaUk: '', ipaUs: '' }));
             const fromDialogues = dialogues.flatMap(d => d.turns.map(t => ({ text: t.english, meaning: t.vietnamese, ipaUk: '', ipaUs: '' })));
@@ -5097,7 +5211,7 @@
                 return;
             }
 
-            speakingPool = [...pool].sort(() => 0.5 - Math.random()).slice(0, Math.min(10, pool.length));
+            speakingPool = weightedSampleWords(pool, Math.min(10, pool.length));
             speakingIndex = 0;
             speakingSessionCorrect = 0;
 
@@ -5228,15 +5342,18 @@
                 addKidAssets(8, 5);
                 updateQuestProgress('speaking_correct');
                 speakingSessionCorrect++;
+                if (item.id !== undefined) recordWordAttempt(item.id, true);
             } else if (similarity >= 0.4) {
                 resultBox.className = "text-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-200";
                 resultBox.innerHTML = `<p class="text-lg font-black text-amber-600">😊 Khá tốt, cố lên!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử nói chuẩn hơn nha!</p>`;
                 playSoundEffect('coin');
                 addKidAssets(3, 2);
+                if (item.id !== undefined) recordWordAttempt(item.id, false);
             } else {
                 resultBox.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-200";
                 resultBox.innerHTML = `<p class="text-lg font-black text-red-500">🙈 Chưa đúng rồi</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử lại nha!</p>`;
                 playSoundEffect('wrong');
+                if (item.id !== undefined) recordWordAttempt(item.id, false);
             }
         }
 
@@ -5282,7 +5399,7 @@
                 return;
             }
 
-            scrambleSessionWords = [...validWords].sort(() => 0.5 - Math.random()).slice(0, Math.min(10, validWords.length));
+            scrambleSessionWords = weightedSampleWords(validWords, Math.min(10, validWords.length));
             scrambleIndex = 0;
             scrambleScore = 0;
             scrambleResults = new Array(scrambleSessionWords.length).fill(null);
@@ -5429,6 +5546,7 @@
             document.getElementById('scramble-input').disabled = true;
 
             const word = scrambleSessionWords[scrambleIndex];
+            recordWordAttempt(word.id, false);
             const feedback = document.getElementById('scramble-feedback');
             feedback.className = "text-sm font-black text-center text-amber-500";
             feedback.innerText = `⏭️ Đã bỏ qua! Từ đúng là: "${word.english}"`;
@@ -5463,6 +5581,7 @@
             const reward = scrambleHintUsedThisQuestion ? { xp: 4, coins: 2 } : { xp: 8, coins: 5 };
             addKidAssets(reward.xp, reward.coins);
             updateQuestProgress('scramble_correct');
+            recordWordAttempt(scrambleSessionWords[scrambleIndex].id, !scrambleHintUsedThisQuestion);
 
             scrambleAdvanceTimer = setTimeout(() => {
                 scrambleIndex++;
