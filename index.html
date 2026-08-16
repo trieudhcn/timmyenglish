@@ -1986,6 +1986,27 @@
         let kidStreakLastDate = getPData('kid_streak_last_date') || null;
         const STREAK_MILESTONES = { 3: { xp: 20, coins: 20 }, 7: { xp: 50, coins: 50 }, 14: { xp: 80, coins: 80 }, 30: { xp: 150, coins: 150 } };
 
+        // ==== ĐỘ KHÓ LÊN CẤP (XP tăng dần theo mốc) ====
+        // Cấp 1-9: 800 XP/cấp | Cấp 10-14: 1000 XP/cấp | Cấp 15-19: 1200 XP/cấp | cứ mỗi 5 cấp từ mốc 10 lại +200 XP
+        function getXPThresholdForLevel(level) {
+            if (level < 10) return 800;
+            const tier = Math.floor((level - 10) / 5);
+            return 1000 + tier * 200;
+        }
+
+        // Tính cấp độ hiện tại theo kiểu lũy kế (mỗi cấp có ngưỡng XP riêng, không chia đều)
+        function computeLevelFromXP(totalXP) {
+            let level = 1;
+            let remainingXP = totalXP;
+            while (true) {
+                const threshold = getXPThresholdForLevel(level);
+                if (remainingXP < threshold) break;
+                remainingXP -= threshold;
+                level++;
+            }
+            return { level, xpIntoLevel: remainingXP, xpForNextLevel: getXPThresholdForLevel(level) };
+        }
+
         // ==== DANH HIỆU THEO LEVEL ====
         const LEVEL_TITLES = [
             { min: 1, max: 2, title: 'Học Giả Nhỏ 🌱' },
@@ -2415,8 +2436,7 @@
             updateStreakOnActivity();
             logDailyActivity();
 
-            const nextLevelXPThreshold = 800;
-            const currentLevel = Math.floor(kidXP / nextLevelXPThreshold) + 1;
+            const currentLevel = computeLevelFromXP(kidXP).level;
             const oldLevel = parseInt(getPData('kid_level_raw')) || 1;
 
             if (currentLevel > oldLevel) {
@@ -2558,7 +2578,7 @@
             if (!priceText) return;
 
             const tier = getCurrentEggTier();
-            const currentLevel = Math.floor(kidXP / 800) + 1;
+            const currentLevel = computeLevelFromXP(kidXP).level;
             const hatchedToday = getEggsHatchedToday();
             const remainingToday = Math.max(0, MAX_EGGS_PER_DAY - hatchedToday);
             const isLevelLocked = currentLevel < tier.requiredLevel;
@@ -2610,7 +2630,7 @@
 
         function buyMagicEgg(free = false) {
             const tier = getCurrentEggTier();
-            const currentLevel = Math.floor(kidXP / 800) + 1;
+            const currentLevel = computeLevelFromXP(kidXP).level;
 
             if (!free) {
                 // 1. Kiểm tra giới hạn số trứng được ấp trong ngày
@@ -2791,15 +2811,15 @@
 
             renderDailyQuests();
 
-            const level = Math.floor(kidXP / 800) + 1;
+            const levelInfo = computeLevelFromXP(kidXP);
+            const level = levelInfo.level;
             document.getElementById('kid-level-top').innerText = `Lvl ${level}`;
             document.getElementById('kid-level-text').innerText = `${getLevelTitle(level)} (Lvl ${level})`;
 
             checkBadges();
 
-            const xpPercentage = kidXP % 800;
-            document.getElementById('kid-xp-bar').style.width = `${(xpPercentage / 800) * 100}%`;
-            document.getElementById('kid-xp-text').innerText = `${xpPercentage} / 800 XP`;
+            document.getElementById('kid-xp-bar').style.width = `${(levelInfo.xpIntoLevel / levelInfo.xpForNextLevel) * 100}%`;
+            document.getElementById('kid-xp-text').innerText = `${levelInfo.xpIntoLevel} / ${levelInfo.xpForNextLevel} XP`;
 
             // Vẽ Vườn Thú Cưng
             const petContainer = document.getElementById('pet-garden-container');
@@ -3149,7 +3169,7 @@
             setPData('daily_vocab', JSON.stringify(vocabulary));
             setPData('kid_xp', kidXP);
             setPData('kid_coins', kidCoins);
-            setPData('kid_level_raw', data.kidLevelRaw || (Math.floor(kidXP / 800) + 1));
+            setPData('kid_level_raw', data.kidLevelRaw || (computeLevelFromXP(kidXP).level));
             setPData('kid_pets', JSON.stringify(kidPets));
             setPData('kid_streak', kidStreak);
             setPData('kid_best_streak', kidBestStreak);
@@ -4502,7 +4522,7 @@
             if (kidStreak >= 7) awardBadge('streak_7');
             if (kidStreak >= 30) awardBadge('streak_30');
 
-            const level = Math.floor(kidXP / 800) + 1;
+            const level = computeLevelFromXP(kidXP).level;
             if (level >= 5) awardBadge('level_5');
             if (level >= 10) awardBadge('level_10');
 
@@ -4519,7 +4539,7 @@
             const gridEl = document.getElementById('badge-grid-container');
             if (!gridEl) return;
 
-            const level = Math.floor(kidXP / 800) + 1;
+            const level = computeLevelFromXP(kidXP).level;
             if (titleEl) titleEl.innerText = getLevelTitle(level);
             if (levelEl) levelEl.innerText = `Cấp Độ ${level}`;
             if (progressEl) progressEl.innerText = `Đã mở khóa: ${kidBadges.length} / ${BADGE_DEFINITIONS.length} huy hiệu`;
@@ -4681,7 +4701,7 @@
         // ==== TRANG TIẾN BỘ CHO PHỤ HUYNH ====
 
         function renderParentProgress() {
-            const level = Math.floor(kidXP / 800) + 1;
+            const level = computeLevelFromXP(kidXP).level;
             document.getElementById('parent-level-text').innerText = `${getLevelTitle(level)} - Cấp ${level}`;
             document.getElementById('parent-words-text').innerText = `${vocabulary.length} từ`;
             document.getElementById('parent-streak-text').innerText = `${kidStreak} ngày (Kỷ lục ${kidBestStreak})`;
