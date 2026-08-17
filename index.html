@@ -4074,7 +4074,8 @@
                 playSoundEffect('correct');
                 addKidAssets(15, 10); // +15 XP, +10 Coins
                 updateQuestProgress('sentence_correct');
-                recordWordAttempt(gameSessionWords[currentGameIndex].id, true);
+                // Không ghi nhận thống kê Ôn Tập Thông Minh ở đây vì Xếp Câu còn liên quan tới ngữ pháp/thứ tự từ
+                // mà bé có thể chưa được học tới, sai không hẳn do chưa thuộc nghĩa của từ
 
                 feedbackEl.className = "text-sm font-black text-emerald-600 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-200 animate-bounce";
                 feedbackEl.innerHTML = `🎉 CHÍNH XÁC RỒI! +15 XP ⭐ +10 Xu 💰`;
@@ -4091,7 +4092,6 @@
                 }, 2200);
             } else {
                 playSoundEffect('wrong');
-                recordWordAttempt(gameSessionWords[currentGameIndex].id, false);
                 feedbackEl.className = "text-sm font-black text-red-500 bg-red-50 px-4 py-2 rounded-2xl border border-red-200 animate-shake";
                 feedbackEl.innerHTML = `❌ Chưa chính xác rồi bé ơi! Thử lại nhé!`;
                 gameAdvanceTimer = setTimeout(() => { feedbackEl.className = "text-sm font-black text-center"; feedbackEl.innerText = ""; }, 2000);
@@ -4198,8 +4198,8 @@
                 playSoundEffect('correct');
                 addKidAssets(5, 3);
                 updateQuestProgress('memory_correct');
-                recordWordAttempt(cardA.wordId, true);
-                recordWordAttempt(cardA.wordId, true);
+                // Không ghi nhận thống kê Ôn Tập Thông Minh ở đây vì Trí Nhớ lật thẻ ngẫu nhiên,
+                // ghép đúng có thể do may mắn chứ chưa chắc bé đã thực sự nhớ nghĩa của từ
 
                 [uidA, uidB].forEach(uid => {
                     const wrapperEl = document.getElementById(`memory-wrapper-${uid}`);
