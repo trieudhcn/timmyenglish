@@ -1436,23 +1436,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal Rương Quà Bí Ẩn -->
-    <div id="mystery-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 hidden backdrop-blur-sm p-4">
-        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm max-h-[85vh] overflow-y-auto transform transition-all scale-95 opacity-0 duration-200 text-center" id="mystery-modal-box">
-            <div class="p-8 space-y-4">
-                <div id="mystery-box-icon" onclick="openMysteryBoxReward()" class="text-7xl mx-auto animate-float cursor-pointer select-none">🎁</div>
-                <div>
-                    <h3 class="text-xl font-black text-purple-600">Rương Quà Bí Ẩn Xuất Hiện!</h3>
-                    <p id="mystery-box-subtitle" class="text-sm text-slate-500 font-semibold mt-1">Bấm vào rương để mở quà bất ngờ nha bé!</p>
-                </div>
-                <button onclick="openMysteryBoxReward()" id="mystery-open-btn" class="bubble-btn bg-purple-500 hover:bg-purple-600 text-white font-black py-3 px-8 rounded-2xl border-b-4 border-purple-700 shadow-md transition">
-                    <i class="fa-solid fa-gift mr-1.5"></i> Mở Ngay!
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal Sửa Câu (dùng chung cho Đối Thoại và Câu Thường Gặp) -->
     <div id="comm-edit-modal" class="fixed inset-0 z-[225] flex items-center justify-center bg-slate-900/50 hidden backdrop-blur-sm p-4">
         <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto transform transition-all scale-95 opacity-0 duration-200" id="comm-edit-modal-box">
@@ -2061,15 +2044,6 @@
         let commEditContext = null; // { type: 'common'|'draftTurn'|'savedTurn', id, dialogueId }
         let pendingDeleteAction = null;
 
-        // ==== RƯƠNG QUÀ BÍ ẨN ====
-        const MYSTERY_REWARDS = [
-            { label: '20 Xu Vàng 💰', xp: 0, coins: 20 },
-            { label: '30 XP Kinh Nghiệm ⭐', xp: 30, coins: 0 },
-            { label: '50 Xu Vàng 💰💰', xp: 0, coins: 50 },
-            { label: '1 Vé Ấp Trứng Miễn Phí 🥚', xp: 0, coins: 0, freeEgg: true },
-            { label: 'ĐẠI THƯỞNG: 50 XP + 50 Xu 🎉', xp: 50, coins: 50 }
-        ];
-
         // ==== NHIỆM VỤ HÀNG NGÀY (Daily Quests) ====
         const DAILY_QUEST_TEMPLATE = [
             { id: 'test_correct', label: 'Trắc Nghiệm', icon: '🏆', target: 10, reward: { xp: 20, coins: 15 } },
@@ -2452,11 +2426,6 @@
             setPData('kid_coins', kidCoins);
 
             renderDashboard();
-
-            // Rương Quà Bí Ẩn: có 8% cơ hội xuất hiện bất ngờ sau khi bé làm đúng
-            if (!opts.skipMystery && Math.random() < 0.01) {
-                setTimeout(() => triggerMysteryBox(), 900);
-            }
         }
 
         // Ghi log số câu trả lời đúng theo từng ngày, phục vụ Trang Tiến Bộ cho phụ huynh
@@ -4653,49 +4622,6 @@
             setPData('kid_active_decoration', themeId);
             applyActiveDecoration();
             renderDecorList();
-        }
-
-        // ==== RƯƠNG QUÀ BÍ ẨN ====
-
-        function triggerMysteryBox() {
-            playSoundEffect('coin');
-            document.getElementById('mystery-box-icon').innerText = '🎁';
-            document.getElementById('mystery-box-subtitle').innerText = 'Bấm vào rương để mở quà bất ngờ nha bé!';
-            document.getElementById('mystery-open-btn').classList.remove('hidden');
-
-            const modal = document.getElementById('mystery-modal');
-            const modalBox = document.getElementById('mystery-modal-box');
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modalBox.classList.remove('scale-95', 'opacity-0');
-                modalBox.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-
-        function openMysteryBoxReward() {
-            const reward = MYSTERY_REWARDS[Math.floor(Math.random() * MYSTERY_REWARDS.length)];
-
-            document.getElementById('mystery-box-icon').innerText = '✨';
-            document.getElementById('mystery-box-subtitle').innerHTML = `Bé nhận được: <b>${reward.label}</b>`;
-            document.getElementById('mystery-open-btn').classList.add('hidden');
-
-            playSoundEffect('levelup');
-            triggerConfettiFireworks();
-
-            if (reward.freeEgg) {
-                buyMagicEgg(true); // Ấp trứng miễn phí, không tốn xu
-            }
-            if (reward.xp > 0 || reward.coins > 0) {
-                addKidAssets(reward.xp, reward.coins, { skipMystery: true });
-            }
-
-            setTimeout(() => {
-                const modal = document.getElementById('mystery-modal');
-                const modalBox = document.getElementById('mystery-modal-box');
-                modalBox.classList.remove('scale-100', 'opacity-100');
-                modalBox.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { modal.classList.add('hidden'); }, 200);
-            }, 2200);
         }
 
         // ==== TRANG TIẾN BỘ CHO PHỤ HUYNH ====
