@@ -5532,18 +5532,20 @@
 				};
 
 				speakingRecognizer.onend = () => {
-					// Tự động chấm điểm phần văn bản thu được nếu bé đã ngừng nói
-					if (isSpeakingListening) {
-						const hintText = document.getElementById('speaking-mic-hint').innerText;
-						const match = hintText.match(/"([^"]+)"/);
-						const finalTranscript = match ? match[1] : '';
-						
-						stopSpeakingRecognition();
-						if (finalTranscript) {
-							handleSpeakingResult(finalTranscript);
+						if (isSpeakingListening) {
+							const hintText = document.getElementById('speaking-mic-hint').innerText;
+							const match = hintText.match(/"([^"]+)"/);
+							const finalTranscript = match ? match[1] : '';
+							
+							stopSpeakingRecognition();
+							
+							if (finalTranscript) {
+								handleSpeakingResult(finalTranscript);
+							} else {
+								document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé bấm mic thử lại nha!';
+							}
 						}
-					}
-				};
+					};
 
 				try {
 					speakingRecognizer.start();
@@ -5580,10 +5582,12 @@
 				});
 				return matches / Math.max(wordsA.length, wordsB.length);
 			}
-
 			function handleSpeakingResult(transcript) {
 				const item = speakingPool[speakingIndex];
 				const similarity = computeSpeechSimilarity(transcript, item.text);
+
+				// RESET lại dòng chữ bên dưới mic để không bị thừa/trùng với khung kết quả
+				document.getElementById('speaking-mic-hint').innerText = 'Bấm vào mic để thử lại nếu muốn nha!';
 
 				const resultBox = document.getElementById('speaking-result-box');
 				resultBox.classList.remove('hidden');
