@@ -309,70 +309,74 @@
             transition: width 0.1s linear;
         }
 
-/* Khung chứa mic và hiệu ứng lan tỏa */
-.mic-wrapper {
-    position: relative;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-}
+		/* Khung chứa mic cố định hình tròn */
+		.mic-wrapper {
+			position: relative;
+			width: 90px;
+			height: 90px;
+			display: inline-flex;
+			justify-content: center;
+			align-items: center;
+			border-radius: 50%;
+		}
 
-		/* Nút Micro 3D sinh động */
+		/* Nút Micro 3D */
 		.mic-button {
 			width: 90px;
 			height: 90px;
 			border-radius: 50%;
 			border: none;
+			outline: none;
 			background: linear-gradient(135deg, #ff7e5f, #feb47b);
-			box-shadow: 0 8px 20px rgba(255, 126, 95, 0.4), inset 0 -4px 0 rgba(0, 0, 0, 0.15);
+			box-shadow: 0 8px 20px rgba(255, 126, 95, 0.4);
 			cursor: pointer;
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			transition: all 0.2s ease-in-out;
+			transition: transform 0.2s ease-in-out;
 			position: relative;
 			z-index: 2;
+			-webkit-tap-highlight-color: transparent;
 		}
 
 		.mic-button:hover {
-			transform: scale(1.08);
+			transform: scale(1.05);
 		}
+
 		.mic-button:active {
 			transform: scale(0.95);
 		}
 
-		.mic-icon {
-			width: 45px;
-			height: 45px;
-			transition: transform 0.3s ease;
-		}
-
-		/* --- TRẠNG THÁI KHI ĐANG THU ÂM --- */
+		/* Trạng thái thu âm */
 		.mic-button.mic-listening {
 			background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
 			box-shadow: 0 8px 25px rgba(255, 65, 108, 0.5) !important;
 			animation: mic-bounce 1.2s infinite ease-in-out;
 		}
 
+		/* Hiệu ứng sóng âm tròn chuẩn 100% */
 		.mic-wrapper.mic-listening::before,
 		.mic-wrapper.mic-listening::after {
 			content: '';
 			position: absolute;
+			top: 0;
+			left: 0;
 			width: 100%;
 			height: 100%;
 			border-radius: 50%;
-			background-color: rgba(255, 65, 108, 0.4);
+			background-color: rgba(255, 65, 108, 0.35);
 			z-index: 1;
-			animation: pulse-wave 1.8s infinite ease-out;
+			animation: pulse-wave 1.6s infinite ease-out;
+			pointer-events: none;
 		}
 
 		.mic-wrapper.mic-listening::after {
-			animation-delay: 0.6s;
+			animation-delay: 0.5s;
 		}
 
 		@keyframes mic-bounce {
 			0%, 100% { transform: scale(1); }
-			50% { transform: scale(1.08); }
+			50% { transform: scale(1.06); }
 		}
 
 		@keyframes pulse-wave {
@@ -381,7 +385,7 @@
 				opacity: 0.8;
 			}
 			100% {
-				transform: scale(1.8);
+				transform: scale(1.7);
 				opacity: 0;
 			}
 		}
@@ -5488,8 +5492,8 @@
 
 				speakingRecognizer = new SR();
 				speakingRecognizer.lang = 'en-US';
-				speakingRecognizer.continuous = true;     // Giữ kết nối để lắng nghe liên tục
-				speakingRecognizer.interimResults = true;  // Bật kết quả thời gian thực để phản hồi Instant
+				speakingRecognizer.continuous = false;    // Tắt continuous để Chrome xử lý gói âm thanh siêu tốc
+				speakingRecognizer.interimResults = true; // Bật nhận diện trực tiếp ngay khi đang cất lời
 				speakingRecognizer.maxAlternatives = 1;
 
 				speakingRecognizer.onstart = () => {
@@ -5508,10 +5512,10 @@
 					const item = speakingPool[speakingIndex];
 					const similarity = computeSpeechSimilarity(transcript, item.text);
 
-					// Hiển thị trực tiếp những gì bé đang nói
+					// Hiển thị chữ bé đang nói theo thời gian thực (Real-time)
 					document.getElementById('speaking-mic-hint').innerText = `🗣️ Bé đang nói: "${transcript}"`;
 
-					// INSTANT MATCHING: Ngay khi độ trùng khớp >= 80%, dừng thu âm và chốt kết quả Xuất sắc ngay!
+					// Khớp từ chuẩn >= 80% là chốt kết quả và dừng thu âm ngay lập tức
 					if (similarity >= 0.8) {
 						stopSpeakingRecognition();
 						handleSpeakingResult(transcript);
@@ -5519,18 +5523,25 @@
 				};
 
 				speakingRecognizer.onerror = (event) => {
+					stopSpeakingRecognition();
 					if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-						stopSpeakingRecognition();
-						showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha! Hãy bấm cho phép rồi thử lại.", "warning");
+						showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha!", "warning");
 					} else if (event.error === 'no-speech') {
 						document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
 					}
 				};
 
 				speakingRecognizer.onend = () => {
-					// Nếu bé dừng nói mà chưa đúng hoàn toàn và chưa bấm dừng, chấm điểm với kết quả tốt nhất hiện tại
+					// Tự động chấm điểm phần văn bản thu được nếu bé đã ngừng nói
 					if (isSpeakingListening) {
+						const hintText = document.getElementById('speaking-mic-hint').innerText;
+						const match = hintText.match(/"([^"]+)"/);
+						const finalTranscript = match ? match[1] : '';
+						
 						stopSpeakingRecognition();
+						if (finalTranscript) {
+							handleSpeakingResult(finalTranscript);
+						}
 					}
 				};
 
@@ -5540,7 +5551,6 @@
 					console.error(e);
 				}
 			}
-
 			function stopSpeakingRecognition() {
 				if (speakingRecognizer) {
 					try { speakingRecognizer.stop(); } catch (e) {}
