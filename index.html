@@ -5481,78 +5481,115 @@
 				speakListWord(item.text, 'us');
 			}
 
-			function toggleSpeakingRecognition() {
-				if (isSpeakingListening) {
-					stopSpeakingRecognition();
-					return;
-				}
+let currentTranscript = '';
+let silenceTimer = null; // Bộ đếm ngắt im lặng chủ động
 
-				const SR = getSpeechRecognitionClass();
-				if (!SR) return;
+function toggleSpeakingRecognition() {
+    if (isSpeakingListening) {
+        stopSpeakingRecognition();
+        return;
+    }
 
-				speakingRecognizer = new SR();
-				speakingRecognizer.lang = 'en-US';
-				speakingRecognizer.continuous = false;    // Tắt continuous để Chrome xử lý gói âm thanh siêu tốc
-				speakingRecognizer.interimResults = true; // Bật nhận diện trực tiếp ngay khi đang cất lời
-				speakingRecognizer.maxAlternatives = 1;
+    const SR = getSpeechRecognitionClass();
+    if (!SR) return;
 
-				speakingRecognizer.onstart = () => {
-					isSpeakingListening = true;
-					document.getElementById('speaking-mic-btn')?.classList.add('mic-listening');
-					document.getElementById('speaking-mic-wrapper')?.classList.add('mic-listening');
-					document.getElementById('speaking-mic-hint').innerText = '🎙️ Đang nghe... Bé nói đi nha!';
-				};
+    // Hàm xóa timer an toàn
+    const clearSilenceTimer = () => {
+        if (silenceTimer) {
+            clearTimeout(silenceTimer);
+            silenceTimer = null;
+        }
+    };
 
-				speakingRecognizer.onresult = (event) => {
-					let transcript = '';
-					for (let i = event.resultIndex; i < event.results.length; ++i) {
-						transcript += event.results[i][0].transcript;
-					}
+    speakingRecognizer = new SR();
+    speakingRecognizer.lang = 'en-US';
+    speakingRecognizer.continuous = false;
+    speakingRecognizer.interimResults = true;
+    speakingRecognizer.maxAlternatives = 1;
 
-					const item = speakingPool[speakingIndex];
-					const similarity = computeSpeechSimilarity(transcript, item.text);
+    speakingRecognizer.onstart = () => {
+        isSpeakingListening = true;
+		hasResultHandled = false; // Reset cờ về false khi bé bấm thu âm lượt mới
+        currentTranscript = '';
+        clearSilenceTimer();
+        document.getElementById('speaking-mic-btn')?.classList.add('mic-listening');
+        document.getElementById('speaking-mic-wrapper')?.classList.add('mic-listening');
+        document.getElementById('speaking-mic-hint').innerText = '🎙️ Đang nghe... Bé nói đi nha!';
+    };
 
-					// Hiển thị chữ bé đang nói theo thời gian thực (Real-time)
-					document.getElementById('speaking-mic-hint').innerText = `🗣️ Bé đang nói: "${transcript}"`;
+    speakingRecognizer.onresult = (event) => {
+        clearSilenceTimer(); // Có âm thanh mới -> xóa timer cũ
 
-					// Khớp từ chuẩn >= 80% là chốt kết quả và dừng thu âm ngay lập tức
-					if (similarity >= 0.8) {
-						stopSpeakingRecognition();
-						handleSpeakingResult(transcript);
-					}
-				};
+        let transcript = '';
+        let isFinal = false;
 
-				speakingRecognizer.onerror = (event) => {
-					stopSpeakingRecognition();
-					if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-						showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha!", "warning");
-					} else if (event.error === 'no-speech') {
-						document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
-					}
-				};
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            transcript += event.results[i][0].transcript;
+            if (event.results[i].isFinal) isFinal = true;
+        }
 
-				speakingRecognizer.onend = () => {
-						if (isSpeakingListening) {
-							const hintText = document.getElementById('speaking-mic-hint').innerText;
-							const match = hintText.match(/"([^"]+)"/);
-							const finalTranscript = match ? match[1] : '';
-							
-							stopSpeakingRecognition();
-							
-							if (finalTranscript) {
-								handleSpeakingResult(finalTranscript);
-							} else {
-								document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé bấm mic thử lại nha!';
-							}
-						}
-					};
+        currentTranscript = transcript.trim();
+        if (!currentTranscript) return;
 
-				try {
-					speakingRecognizer.start();
-				} catch (e) {
-					console.error(e);
-				}
-			}
+        // Hiển thị UI ngay lập tức
+        document.getElementById('speaking-mic-hint').innerText = `🗣️ Bé đang nói: "${currentTranscript}"`;
+
+        const item = speakingPool[speakingIndex];
+        const similarity = computeSpeechSimilarity(currentTranscript, item.text);
+
+        // GIẢI PHÁP 1: Nói đúng >= 80% là DỪNG NGAY LẬP TỨC (Độ trễ = 0ms)
+        if (similarity >= 0.8) {
+            stopSpeakingRecognition();
+            handleSpeakingResult(currentTranscript);
+            return;
+        }
+
+        // GIẢI PHÁP 2: Chrome đã tự chốt từ chuẩn
+        if (isFinal) {
+            stopSpeakingRecognition();
+            handleSpeakingResult(currentTranscript);
+            return;
+        }
+
+        // GIẢI PHÁP 3: Bé đọc từ ngắn nhưng chưa đủ 80% (đọc sai)
+        // Đặt timer 800ms, nếu sau 800ms bé dừng nói thì tự ngắt mic luôn, không chờ Chrome ngâm 2-3s
+        silenceTimer = setTimeout(() => {
+            if (isSpeakingListening && currentTranscript) {
+                clearSilenceTimer();
+                stopSpeakingRecognition();
+                handleSpeakingResult(currentTranscript);
+            }
+        }, 800); 
+    };
+
+    speakingRecognizer.onerror = (event) => {
+        clearSilenceTimer();
+        stopSpeakingRecognition();
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha!", "warning");
+        } else if (event.error === 'no-speech') {
+            document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
+        }
+    };
+
+    speakingRecognizer.onend = () => {
+        clearSilenceTimer();
+        if (isSpeakingListening) {
+            stopSpeakingRecognition();
+            if (currentTranscript) {
+                handleSpeakingResult(currentTranscript);
+            } else {
+                document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé bấm mic thử lại nha!';
+            }
+        }
+    };
+
+    try {
+        speakingRecognizer.start();
+    } catch (e) {
+        console.error(e);
+    }
+}
 			function stopSpeakingRecognition() {
 				if (speakingRecognizer) {
 					try { speakingRecognizer.stop(); } catch (e) {}
@@ -5582,11 +5619,17 @@
 				});
 				return matches / Math.max(wordsA.length, wordsB.length);
 			}
+			let hasResultHandled = false; // Cờ chặn chạy trùng kết quả
+
 			function handleSpeakingResult(transcript) {
+				// Nếu lượt này đã xử lý kết quả rồi thì bỏ qua, không chạy lại
+				if (hasResultHandled) return; 
+				hasResultHandled = true;
+
 				const item = speakingPool[speakingIndex];
 				const similarity = computeSpeechSimilarity(transcript, item.text);
 
-				// RESET lại dòng chữ bên dưới mic để không bị thừa/trùng với khung kết quả
+				// RESET lại dòng chữ bên dưới mic
 				document.getElementById('speaking-mic-hint').innerText = 'Bấm vào mic để thử lại nếu muốn nha!';
 
 				const resultBox = document.getElementById('speaking-result-box');
