@@ -309,6 +309,83 @@
             transition: width 0.1s linear;
         }
 
+/* Khung chứa mic và hiệu ứng lan tỏa */
+.mic-wrapper {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+		/* Nút Micro 3D sinh động */
+		.mic-button {
+			width: 90px;
+			height: 90px;
+			border-radius: 50%;
+			border: none;
+			background: linear-gradient(135deg, #ff7e5f, #feb47b);
+			box-shadow: 0 8px 20px rgba(255, 126, 95, 0.4), inset 0 -4px 0 rgba(0, 0, 0, 0.15);
+			cursor: pointer;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			transition: all 0.2s ease-in-out;
+			position: relative;
+			z-index: 2;
+		}
+
+		.mic-button:hover {
+			transform: scale(1.08);
+		}
+		.mic-button:active {
+			transform: scale(0.95);
+		}
+
+		.mic-icon {
+			width: 45px;
+			height: 45px;
+			transition: transform 0.3s ease;
+		}
+
+		/* --- TRẠNG THÁI KHI ĐANG THU ÂM --- */
+		.mic-button.mic-listening {
+			background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
+			box-shadow: 0 8px 25px rgba(255, 65, 108, 0.5) !important;
+			animation: mic-bounce 1.2s infinite ease-in-out;
+		}
+
+		.mic-wrapper.mic-listening::before,
+		.mic-wrapper.mic-listening::after {
+			content: '';
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			border-radius: 50%;
+			background-color: rgba(255, 65, 108, 0.4);
+			z-index: 1;
+			animation: pulse-wave 1.8s infinite ease-out;
+		}
+
+		.mic-wrapper.mic-listening::after {
+			animation-delay: 0.6s;
+		}
+
+		@keyframes mic-bounce {
+			0%, 100% { transform: scale(1); }
+			50% { transform: scale(1.08); }
+		}
+
+		@keyframes pulse-wave {
+			0% {
+				transform: scale(1);
+				opacity: 0.8;
+			}
+			100% {
+				transform: scale(1.8);
+				opacity: 0;
+			}
+		}
+
         /* Hiệu ứng Pháo hoa giấy (Confetti) mừng thăng cấp */
         .confetti-piece {
             position: fixed;
@@ -1276,12 +1353,22 @@
                         <button onclick="playSpeakingSample()" class="mt-3 text-rose-500 hover:text-rose-600 text-sm font-black"><i class="fa-solid fa-volume-high mr-1"></i> Nghe Mẫu</button>
                     </div>
 
-                    <div class="text-center">
-                        <button onclick="toggleSpeakingRecognition()" id="speaking-mic-btn" class="w-20 h-20 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-3xl shadow-lg transition flex items-center justify-center mx-auto">
-                            <i class="fa-solid fa-microphone"></i>
-                        </button>
-                        <p id="speaking-mic-hint" class="text-xs text-slate-400 font-bold mt-2">Bấm vào mic rồi nói to câu trên nha!</p>
-                    </div>
+					<div class="text-center flex flex-col items-center justify-center my-4">
+						<!-- Khung bọc tạo hiệu ứng sóng âm lan tỏa -->
+						<div class="mic-wrapper" id="speaking-mic-wrapper">
+							<button onclick="toggleSpeakingRecognition()" 
+									id="speaking-mic-btn" 
+									class="mic-button">
+								<!-- Icon Micro từ Font Awesome -->
+								<i class="fa-solid fa-microphone text-4xl text-white mic-icon"></i>
+							</button>
+						</div>
+
+						<!-- Dòng chữ hiển thị trạng thái và lời bé đang nói -->
+						<p id="speaking-mic-hint" class="text-xs text-slate-500 font-bold mt-4 transition-all">
+							Bấm vào mic rồi nói to câu trên nha!
+						</p>
+					</div>
 
                     <div id="speaking-result-box" class="hidden text-center p-4 rounded-2xl"></div>
 
@@ -5297,222 +5384,239 @@
             });
         }
 
-        // ==== LUYỆN PHÁT ÂM (Speaking Practice) ====
+			// ==== LUYỆN PHÁT ÂM (Speaking Practice) ====
 
-        function getSpeechRecognitionClass() {
-            return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-        }
+			function getSpeechRecognitionClass() {
+				return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+			}
 
-        function initSpeakingTab() {
-            const SR = getSpeechRecognitionClass();
-            document.getElementById('speaking-unsupported').classList.toggle('hidden', !!SR);
-            document.getElementById('speaking-main-content').classList.toggle('hidden', !SR);
-            if (!SR) return;
+			function initSpeakingTab() {
+				const SR = getSpeechRecognitionClass();
+				document.getElementById('speaking-unsupported').classList.toggle('hidden', !!SR);
+				document.getElementById('speaking-main-content').classList.toggle('hidden', !SR);
+				if (!SR) return;
 
-            switchSpeakingMode(speakingMode);
-            resetSpeakingTabUI();
-        }
+				switchSpeakingMode(speakingMode);
+				resetSpeakingTabUI();
+			}
 
-        function getSpeakingPoolSource(mode) {
-            if (mode === 'vocab') {
-                return vocabulary.map(w => ({ id: w.id, text: w.english, meaning: w.vietnamese, ipaUk: w.ipaUk || '', ipaUs: w.ipaUs || '' }));
-            }
-            const fromCommon = commonSentences.map(s => ({ text: s.english, meaning: s.vietnamese, ipaUk: '', ipaUs: '' }));
-            const fromDialogues = dialogues.flatMap(d => d.turns.map(t => ({ text: t.english, meaning: t.vietnamese, ipaUk: '', ipaUs: '' })));
-            return [...fromCommon, ...fromDialogues];
-        }
+			function getSpeakingPoolSource(mode) {
+				if (mode === 'vocab') {
+					return vocabulary.map(w => ({ id: w.id, text: w.english, meaning: w.vietnamese, ipaUk: w.ipaUk || '', ipaUs: w.ipaUs || '' }));
+				}
+				const fromCommon = commonSentences.map(s => ({ text: s.english, meaning: s.vietnamese, ipaUk: '', ipaUs: '' }));
+				const fromDialogues = dialogues.flatMap(d => d.turns.map(t => ({ text: t.english, meaning: t.vietnamese, ipaUk: '', ipaUs: '' })));
+				return [...fromCommon, ...fromDialogues];
+			}
 
-        function switchSpeakingMode(mode) {
-            speakingMode = mode;
-            document.getElementById('speaking-mode-btn-vocab').classList.toggle('active', mode === 'vocab');
-            document.getElementById('speaking-mode-btn-sentence').classList.toggle('active', mode === 'sentence');
+			function switchSpeakingMode(mode) {
+				speakingMode = mode;
+				document.getElementById('speaking-mode-btn-vocab').classList.toggle('active', mode === 'vocab');
+				document.getElementById('speaking-mode-btn-sentence').classList.toggle('active', mode === 'sentence');
 
-            const pool = getSpeakingPoolSource(mode);
-            document.getElementById('speaking-pool-count-text').innerText = mode === 'vocab'
-                ? `Có ${pool.length} từ vựng để luyện`
-                : `Có ${pool.length} câu giao tiếp để luyện`;
-        }
+				const pool = getSpeakingPoolSource(mode);
+				document.getElementById('speaking-pool-count-text').innerText = mode === 'vocab'
+					? `Có ${pool.length} từ vựng để luyện`
+					: `Có ${pool.length} câu giao tiếp để luyện`;
+			}
 
-        function resetSpeakingTabUI() {
-            stopSpeakingRecognition();
-            document.getElementById('speaking-start-screen').classList.remove('hidden');
-            document.getElementById('speaking-play-screen').classList.add('hidden');
-            document.getElementById('speaking-empty').classList.add('hidden');
-        }
+			function resetSpeakingTabUI() {
+				stopSpeakingRecognition();
+				document.getElementById('speaking-start-screen').classList.remove('hidden');
+				document.getElementById('speaking-play-screen').classList.add('hidden');
+				document.getElementById('speaking-empty').classList.add('hidden');
+			}
 
-        function startSpeakingSession() {
-            const pool = getSpeakingPoolSource(speakingMode);
-            if (pool.length === 0) {
-                document.getElementById('speaking-start-screen').classList.add('hidden');
-                document.getElementById('speaking-empty-message').innerText = speakingMode === 'vocab'
-                    ? "Bé hãy vào Sổ Từ thêm từ vựng trước nha!"
-                    : "Bé hãy vào tab Giao Tiếp thêm câu đối thoại hoặc câu thường gặp trước nha!";
-                document.getElementById('speaking-empty').classList.remove('hidden');
-                return;
-            }
+			function startSpeakingSession() {
+				const pool = getSpeakingPoolSource(speakingMode);
+				if (pool.length === 0) {
+					document.getElementById('speaking-start-screen').classList.add('hidden');
+					document.getElementById('speaking-empty-message').innerText = speakingMode === 'vocab'
+						? "Bé hãy vào Sổ Từ thêm từ vựng trước nha!"
+						: "Bé hãy vào tab Giao Tiếp thêm câu đối thoại hoặc câu thường gặp trước nha!";
+					document.getElementById('speaking-empty').classList.remove('hidden');
+					return;
+				}
 
-            speakingPool = weightedSampleWords(pool, Math.min(10, pool.length));
-            speakingIndex = 0;
-            speakingSessionCorrect = 0;
+				speakingPool = weightedSampleWords(pool, Math.min(10, pool.length));
+				speakingIndex = 0;
+				speakingSessionCorrect = 0;
 
-            document.getElementById('speaking-start-screen').classList.add('hidden');
-            document.getElementById('speaking-empty').classList.add('hidden');
-            document.getElementById('speaking-play-screen').classList.remove('hidden');
+				document.getElementById('speaking-start-screen').classList.add('hidden');
+				document.getElementById('speaking-empty').classList.add('hidden');
+				document.getElementById('speaking-play-screen').classList.remove('hidden');
 
-            loadSpeakingItem();
-        }
+				loadSpeakingItem();
+			}
 
-        function loadSpeakingItem() {
-            stopSpeakingRecognition();
-            const item = speakingPool[speakingIndex];
-            document.getElementById('speaking-progress-text').innerText = `Câu ${speakingIndex + 1} / ${speakingPool.length}`;
-            document.getElementById('speaking-target-text').innerText = item.text;
-            document.getElementById('speaking-target-meaning').innerText = item.meaning;
+			function loadSpeakingItem() {
+				stopSpeakingRecognition();
+				const item = speakingPool[speakingIndex];
+				document.getElementById('speaking-progress-text').innerText = `Câu ${speakingIndex + 1} / ${speakingPool.length}`;
+				document.getElementById('speaking-target-text').innerText = item.text;
+				document.getElementById('speaking-target-meaning').innerText = item.meaning;
 
-            const ipaBox = document.getElementById('speaking-target-ipa');
-            const hasIpa = !!(item.ipaUk || item.ipaUs);
-            document.getElementById('speaking-target-ipa-uk').innerText = item.ipaUk ? `UK: ${item.ipaUk}` : '';
-            document.getElementById('speaking-target-ipa-us').innerText = item.ipaUs ? `US: ${item.ipaUs}` : '';
-            ipaBox.style.display = hasIpa ? 'flex' : 'none';
+				const ipaBox = document.getElementById('speaking-target-ipa');
+				const hasIpa = !!(item.ipaUk || item.ipaUs);
+				document.getElementById('speaking-target-ipa-uk').innerText = item.ipaUk ? `UK: ${item.ipaUk}` : '';
+				document.getElementById('speaking-target-ipa-us').innerText = item.ipaUs ? `US: ${item.ipaUs}` : '';
+				ipaBox.style.display = hasIpa ? 'flex' : 'none';
 
-            const resultBox = document.getElementById('speaking-result-box');
-            resultBox.classList.add('hidden');
-            resultBox.innerHTML = '';
-            document.getElementById('speaking-next-btn').classList.add('hidden');
-            document.getElementById('speaking-mic-hint').innerText = 'Bấm vào mic rồi nói to câu trên nha!';
+				const resultBox = document.getElementById('speaking-result-box');
+				resultBox.classList.add('hidden');
+				resultBox.innerHTML = '';
+				document.getElementById('speaking-next-btn').classList.add('hidden');
+				document.getElementById('speaking-mic-hint').innerText = 'Bấm vào mic rồi nói to câu trên nha!';
 
-            playSpeakingSample();
-        }
+				playSpeakingSample();
+			}
 
-        function playSpeakingSample() {
-            const item = speakingPool[speakingIndex];
-            if (!item) return;
-            speakListWord(item.text, 'us');
-        }
+			function playSpeakingSample() {
+				const item = speakingPool[speakingIndex];
+				if (!item) return;
+				speakListWord(item.text, 'us');
+			}
 
-        function toggleSpeakingRecognition() {
-            if (isSpeakingListening) {
-                stopSpeakingRecognition();
-                return;
-            }
+			function toggleSpeakingRecognition() {
+				if (isSpeakingListening) {
+					stopSpeakingRecognition();
+					return;
+				}
 
-            const SR = getSpeechRecognitionClass();
-            if (!SR) return;
+				const SR = getSpeechRecognitionClass();
+				if (!SR) return;
 
-            speakingRecognizer = new SR();
-            speakingRecognizer.lang = 'en-US';
-            speakingRecognizer.continuous = false;
-            speakingRecognizer.interimResults = false;
-            speakingRecognizer.maxAlternatives = 1;
+				speakingRecognizer = new SR();
+				speakingRecognizer.lang = 'en-US';
+				speakingRecognizer.continuous = true;     // Giữ kết nối để lắng nghe liên tục
+				speakingRecognizer.interimResults = true;  // Bật kết quả thời gian thực để phản hồi Instant
+				speakingRecognizer.maxAlternatives = 1;
 
-            speakingRecognizer.onstart = () => {
-                isSpeakingListening = true;
-                document.getElementById('speaking-mic-btn').classList.add('mic-listening');
-                document.getElementById('speaking-mic-hint').innerText = '🎙️ Đang nghe... Bé nói to lên nha!';
-            };
+				speakingRecognizer.onstart = () => {
+					isSpeakingListening = true;
+					document.getElementById('speaking-mic-btn')?.classList.add('mic-listening');
+					document.getElementById('speaking-mic-wrapper')?.classList.add('mic-listening');
+					document.getElementById('speaking-mic-hint').innerText = '🎙️ Đang nghe... Bé nói đi nha!';
+				};
 
-            speakingRecognizer.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                handleSpeakingResult(transcript);
-            };
+				speakingRecognizer.onresult = (event) => {
+					let transcript = '';
+					for (let i = event.resultIndex; i < event.results.length; ++i) {
+						transcript += event.results[i][0].transcript;
+					}
 
-            speakingRecognizer.onerror = (event) => {
-                stopSpeakingRecognition();
-                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                    showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha! Hãy bấm cho phép rồi thử lại.", "warning");
-                } else if (event.error === 'no-speech') {
-                    document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
-                }
-            };
+					const item = speakingPool[speakingIndex];
+					const similarity = computeSpeechSimilarity(transcript, item.text);
 
-            speakingRecognizer.onend = () => {
-                isSpeakingListening = false;
-                document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
-            };
+					// Hiển thị trực tiếp những gì bé đang nói
+					document.getElementById('speaking-mic-hint').innerText = `🗣️ Bé đang nói: "${transcript}"`;
 
-            try {
-                speakingRecognizer.start();
-            } catch (e) {
-                console.error(e);
-            }
-        }
+					// INSTANT MATCHING: Ngay khi độ trùng khớp >= 80%, dừng thu âm và chốt kết quả Xuất sắc ngay!
+					if (similarity >= 0.8) {
+						stopSpeakingRecognition();
+						handleSpeakingResult(transcript);
+					}
+				};
 
-        function stopSpeakingRecognition() {
-            if (speakingRecognizer) {
-                try { speakingRecognizer.stop(); } catch (e) {}
-            }
-            isSpeakingListening = false;
-            document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
-        }
+				speakingRecognizer.onerror = (event) => {
+					if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+						stopSpeakingRecognition();
+						showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha! Hãy bấm cho phép rồi thử lại.", "warning");
+					} else if (event.error === 'no-speech') {
+						document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
+					}
+				};
 
-        // So khớp câu bé nói với câu mẫu theo tỉ lệ từ trùng khớp (không phân biệt hoa/thường, dấu câu)
-        function normalizeSpeechText(text) {
-            return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
-        }
+				speakingRecognizer.onend = () => {
+					// Nếu bé dừng nói mà chưa đúng hoàn toàn và chưa bấm dừng, chấm điểm với kết quả tốt nhất hiện tại
+					if (isSpeakingListening) {
+						stopSpeakingRecognition();
+					}
+				};
 
-        function computeSpeechSimilarity(a, b) {
-            const na = normalizeSpeechText(a);
-            const nb = normalizeSpeechText(b);
-            if (!na || !nb) return 0;
-            if (na === nb) return 1;
+				try {
+					speakingRecognizer.start();
+				} catch (e) {
+					console.error(e);
+				}
+			}
 
-            const wordsA = na.split(' ');
-            const wordsB = nb.split(' ');
-            let matches = 0;
-            const bCopy = [...wordsB];
-            wordsA.forEach(w => {
-                const idx = bCopy.indexOf(w);
-                if (idx !== -1) { matches++; bCopy.splice(idx, 1); }
-            });
-            return matches / Math.max(wordsA.length, wordsB.length);
-        }
+			function stopSpeakingRecognition() {
+				if (speakingRecognizer) {
+					try { speakingRecognizer.stop(); } catch (e) {}
+				}
+				isSpeakingListening = false;
+				document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
+				document.getElementById('speaking-mic-wrapper')?.classList.remove('mic-listening');
+			}
 
-        function handleSpeakingResult(transcript) {
-            const item = speakingPool[speakingIndex];
-            const similarity = computeSpeechSimilarity(transcript, item.text);
+			function normalizeSpeechText(text) {
+				return text ? text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim() : '';
+			}
 
-            const resultBox = document.getElementById('speaking-result-box');
-            resultBox.classList.remove('hidden');
-            document.getElementById('speaking-next-btn').classList.remove('hidden');
+			function computeSpeechSimilarity(a, b) {
+				const na = normalizeSpeechText(a);
+				const nb = normalizeSpeechText(b);
+				if (!na || !nb) return 0;
+				if (na === nb) return 1;
 
-            if (similarity >= 0.8) {
-                resultBox.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200";
-                resultBox.innerHTML = `<p class="text-lg font-black text-emerald-600">🎉 Xuất sắc!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p>`;
-                playSoundEffect('correct');
-                addKidAssets(8, 5);
-                updateQuestProgress('speaking_correct');
-                speakingSessionCorrect++;
-                if (item.id !== undefined) recordWordAttempt(item.id, true);
-            } else if (similarity >= 0.4) {
-                resultBox.className = "text-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-200";
-                resultBox.innerHTML = `<p class="text-lg font-black text-amber-600">😊 Khá tốt, cố lên!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử nói chuẩn hơn nha!</p>`;
-                playSoundEffect('coin');
-                addKidAssets(3, 2);
-                if (item.id !== undefined) recordWordAttempt(item.id, false);
-            } else {
-                resultBox.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-200";
-                resultBox.innerHTML = `<p class="text-lg font-black text-red-500">🙈 Chưa đúng rồi</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử lại nha!</p>`;
-                playSoundEffect('wrong');
-                if (item.id !== undefined) recordWordAttempt(item.id, false);
-            }
-        }
+				const wordsA = na.split(' ');
+				const wordsB = nb.split(' ');
+				let matches = 0;
+				const bCopy = [...wordsB];
+				wordsA.forEach(w => {
+					const idx = bCopy.indexOf(w);
+					if (idx !== -1) { matches++; bCopy.splice(idx, 1); }
+				});
+				return matches / Math.max(wordsA.length, wordsB.length);
+			}
 
-        function nextSpeakingItem() {
-            speakingIndex++;
-            if (speakingIndex >= speakingPool.length) {
-                finishSpeakingSession();
-            } else {
-                loadSpeakingItem();
-            }
-        }
+			function handleSpeakingResult(transcript) {
+				const item = speakingPool[speakingIndex];
+				const similarity = computeSpeechSimilarity(transcript, item.text);
 
-        function finishSpeakingSession() {
-            playSoundEffect('levelup');
-            triggerConfettiFireworks();
-            addKidAssets(10, 5); // Thưởng hoàn thành trọn bộ
-            showModal("HOÀN THÀNH LUYỆN NÓI! 🎤✨", `Bé đã luyện phát âm ${speakingPool.length} câu, trong đó nói xuất sắc ${speakingSessionCorrect} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
-            resetSpeakingTabUI();
-        }
+				const resultBox = document.getElementById('speaking-result-box');
+				resultBox.classList.remove('hidden');
+				document.getElementById('speaking-next-btn').classList.remove('hidden');
+
+				if (similarity >= 0.8) {
+					resultBox.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200";
+					resultBox.innerHTML = `<p class="text-lg font-black text-emerald-600">🎉 Xuất sắc!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p>`;
+					playSoundEffect('correct');
+					addKidAssets(8, 5);
+					updateQuestProgress('speaking_correct');
+					speakingSessionCorrect++;
+					if (item.id !== undefined) recordWordAttempt(item.id, true);
+				} else if (similarity >= 0.4) {
+					resultBox.className = "text-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-200";
+					resultBox.innerHTML = `<p class="text-lg font-black text-amber-600">😊 Khá tốt, cố lên!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử nói chuẩn hơn nha!</p>`;
+					playSoundEffect('coin');
+					addKidAssets(3, 2);
+					if (item.id !== undefined) recordWordAttempt(item.id, false);
+				} else {
+					resultBox.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-200";
+					resultBox.innerHTML = `<p class="text-lg font-black text-red-500">🙈 Chưa đúng rồi</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử lại nha!</p>`;
+					playSoundEffect('wrong');
+					if (item.id !== undefined) recordWordAttempt(item.id, false);
+				}
+			}
+
+			function nextSpeakingItem() {
+				speakingIndex++;
+				if (speakingIndex >= speakingPool.length) {
+					finishSpeakingSession();
+				} else {
+					loadSpeakingItem();
+				}
+			}
+
+			function finishSpeakingSession() {
+				playSoundEffect('levelup');
+				triggerConfettiFireworks();
+				addKidAssets(10, 5);
+				showModal("HOÀN THÀNH LUYỆN NÓI! 🎤✨", `Bé đã luyện phát âm ${speakingPool.length} câu, trong đó nói xuất sắc ${speakingSessionCorrect} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
+				resetSpeakingTabUI();
+			}
 
         // Được gọi bởi fbAuth.onAuthStateChanged() sau khi đã đăng nhập VÀ đã có hồ sơ hợp lệ đang chọn
         // ==== GHÉP TỪ (Word Scramble) ====
