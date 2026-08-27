@@ -230,6 +230,17 @@
             color: white;
         }
 
+        .grammar-subtab-btn {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #64748b;
+        }
+        .grammar-subtab-btn.active {
+            background: #2563eb;
+            border-color: #1e40af;
+            color: white;
+        }
+
         /* Giao Tiếp - thanh cuộn mảnh cho danh sách hội thoại/câu thường gặp dài */
         .comm-scrollbar::-webkit-scrollbar {
             width: 5px;
@@ -466,6 +477,7 @@
                 <button onclick="switchTab('progress-zone')" id="btn-progress-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-chart-column text-sm"></i> Tiến Bộ</button>
                 <button onclick="switchTab('communication-zone')" id="btn-communication-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-comments text-sm"></i> Giao Tiếp</button>
                 <button onclick="switchTab('speaking-zone')" id="btn-speaking-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-microphone text-sm"></i> Phát Âm</button>
+                <button onclick="switchTab('grammar-zone')" id="btn-grammar-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-book text-sm"></i> Ngữ Pháp</button>
             </div>
 
         </div>
@@ -1287,6 +1299,156 @@
             </div>
         </section>
 
+        <section id="tab-grammar-zone" class="tab-content hidden max-w-3xl mx-auto space-y-4">
+            <div class="bg-gradient-to-br from-blue-100 to-sky-50 p-4 sm:p-6 rounded-[2.5rem] shadow-sm border-4 border-blue-200/50 text-center">
+                <span class="text-4xl block mb-2">📘</span>
+                <h2 class="text-xl font-black text-blue-700">Ngữ Pháp</h2>
+                <p class="text-xs text-slate-500 font-semibold mt-1">Tra cứu và luyện tập các chủ điểm ngữ pháp cơ bản mà bé đang học ở trường nha!</p>
+            </div>
+
+            <!-- Chọn chủ đề con -->
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="switchGrammarSubTab('notebook')" id="grammar-subtab-btn-notebook" class="grammar-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-book-open mr-1"></i> Sổ Tay</button>
+                <button onclick="switchGrammarSubTab('choice')" id="grammar-subtab-btn-choice" class="grammar-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-check-double mr-1"></i> Chọn Câu Đúng</button>
+                <button onclick="switchGrammarSubTab('fillblank')" id="grammar-subtab-btn-fillblank" class="grammar-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-pen-to-square mr-1"></i> Điền Đúng Dạng Từ</button>
+            </div>
+
+            <!-- ===== SỔ TAY NGỮ PHÁP ===== -->
+            <div id="grammar-panel-notebook" class="space-y-4">
+                <div class="bg-white p-5 rounded-[2rem] shadow-sm border-4 border-blue-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-black text-blue-600 uppercase">Thêm Chủ Điểm Mới</h3>
+                        <button onclick="toggleGrammarTopicForm()" id="grammar-topic-form-toggle-btn" class="text-xs font-black text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-full transition shadow-sm border-b-2 border-blue-700"><i class="fa-solid fa-plus mr-1"></i> Thêm</button>
+                    </div>
+                    <div id="grammar-topic-form" class="hidden space-y-3">
+                        <input type="hidden" id="grammar-topic-edit-id">
+                        <div class="flex gap-2">
+                            <input type="text" id="grammar-topic-icon" maxlength="4" placeholder="🕐" value="📘" class="w-16 px-2 py-2.5 rounded-2xl border-2 border-blue-100 bg-blue-50/50 focus:outline-none focus:ring-2 focus:ring-blue-400 text-center text-xl">
+                            <input type="text" id="grammar-topic-title" oninput="capitalizeInput(this)" placeholder="Tên chủ điểm, VD: Thì Hiện Tại Đơn" class="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm font-bold">
+                        </div>
+                        <textarea id="grammar-topic-explanation" rows="2" placeholder="Giải thích ngắn gọn bằng tiếng Việt..." class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"></textarea>
+                        <input type="text" id="grammar-topic-formula" placeholder="Công thức, VD: S + V(s/es) + O" class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm font-mono">
+                        <p class="text-[11px] font-black text-slate-400 uppercase pt-1">Câu ví dụ (tối đa 3 câu)</p>
+                        <div id="grammar-topic-examples-inputs" class="space-y-2"></div>
+                        <button onclick="saveGrammarTopic()" class="w-full bubble-btn bg-blue-500 hover:bg-blue-600 text-white font-black py-2.5 rounded-2xl border-b-4 border-blue-700 transition text-sm"><i class="fa-solid fa-floppy-disk mr-1"></i> Lưu Chủ Điểm</button>
+                    </div>
+                </div>
+
+                <div id="grammar-topics-list" class="space-y-3"></div>
+            </div>
+
+            <!-- ===== CHỌN CÂU ĐÚNG ===== -->
+            <div id="grammar-panel-choice" class="hidden space-y-4">
+                <div id="choice-manage-screen" class="space-y-4">
+                    <div class="bg-white p-5 rounded-[2rem] shadow-sm border-4 border-blue-100">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-sm font-black text-blue-600 uppercase">Thêm Cặp Câu Đúng/Sai</h3>
+                            <button onclick="toggleChoicePairForm()" id="choice-pair-form-toggle-btn" class="text-xs font-black text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-full transition shadow-sm border-b-2 border-blue-700"><i class="fa-solid fa-plus mr-1"></i> Thêm</button>
+                        </div>
+                        <div id="choice-pair-form" class="hidden space-y-3">
+                            <input type="hidden" id="choice-pair-edit-id">
+                            <div>
+                                <label class="block text-[11px] font-black text-emerald-500 uppercase mb-1">Câu đúng</label>
+                                <input type="text" id="choice-pair-correct" oninput="capitalizeInput(this)" placeholder="VD: She goes to school." class="w-full px-4 py-2.5 rounded-2xl border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black text-red-400 uppercase mb-1">Câu sai (lỗi thường gặp)</label>
+                                <input type="text" id="choice-pair-incorrect" oninput="capitalizeInput(this)" placeholder="VD: She go to school." class="w-full px-4 py-2.5 rounded-2xl border border-red-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black text-slate-400 uppercase mb-1">Giải thích ngắn (hiện sau khi bé trả lời)</label>
+                                <input type="text" id="choice-pair-explanation" placeholder="VD: Chủ ngữ số ít cần thêm s/es vào động từ." class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+                            </div>
+                            <button onclick="saveChoicePair()" class="w-full bubble-btn bg-blue-500 hover:bg-blue-600 text-white font-black py-2.5 rounded-2xl border-b-4 border-blue-700 transition text-sm"><i class="fa-solid fa-floppy-disk mr-1"></i> Lưu Cặp Câu</button>
+                        </div>
+                    </div>
+
+                    <div id="choice-pairs-list" class="space-y-2"></div>
+
+                    <div id="choice-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-blue-100 text-center space-y-5">
+                        <p id="choice-pool-count-text" class="text-sm font-bold text-slate-500">Có 0 cặp câu để luyện</p>
+                        <button onclick="startChoiceGame()" class="bubble-btn bg-blue-500 hover:bg-blue-600 text-white font-black py-3 px-8 rounded-2xl border-b-4 border-blue-700 shadow-md transition">
+                            <i class="fa-solid fa-play mr-1.5"></i> Bắt Đầu Luyện Tập!
+                        </button>
+                    </div>
+                </div>
+
+                <div id="choice-play-screen" class="hidden bg-white p-4 sm:p-6 rounded-[2.5rem] shadow-sm border-4 border-blue-100 space-y-4">
+                    <div class="flex flex-wrap justify-between items-center gap-2 text-xs font-bold text-slate-500 border-b pb-3">
+                        <span id="choice-progress-text" class="text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">Câu 1 / 10</span>
+                        <span id="choice-score-text" class="text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">✅ Đúng: 0</span>
+                        <button onclick="resetChoiceTabUI()" class="text-slate-400 hover:text-slate-600 text-xs font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Quay lại</button>
+                    </div>
+
+                    <p class="text-center text-sm text-slate-500 font-semibold">Câu nào đúng ngữ pháp hơn nào?</p>
+
+                    <div id="choice-options-container" class="grid grid-cols-1 gap-3"></div>
+
+                    <div id="choice-feedback" class="hidden text-center p-4 rounded-2xl"></div>
+
+                    <button onclick="nextChoiceItem()" id="choice-next-btn" class="hidden w-full bubble-btn bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-2.5 rounded-2xl transition text-sm">
+                        Câu Tiếp Theo <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== ĐIỀN ĐÚNG DẠNG TỪ ===== -->
+            <div id="grammar-panel-fillblank" class="hidden space-y-4">
+                <div id="fillblank-manage-screen" class="space-y-4">
+                    <div class="bg-white p-5 rounded-[2rem] shadow-sm border-4 border-blue-100">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-sm font-black text-blue-600 uppercase">Thêm Câu Điền Khuyết</h3>
+                            <button onclick="toggleFillBlankForm()" id="fillblank-form-toggle-btn" class="text-xs font-black text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-full transition shadow-sm border-b-2 border-blue-700"><i class="fa-solid fa-plus mr-1"></i> Thêm</button>
+                        </div>
+                        <div id="fillblank-form" class="hidden space-y-3">
+                            <input type="hidden" id="fillblank-edit-id">
+                            <div>
+                                <label class="block text-[11px] font-black text-slate-400 uppercase mb-1">Câu có chỗ trống (dùng ___ để đánh dấu)</label>
+                                <input type="text" id="fillblank-sentence" placeholder="VD: The cat is ___ the box." class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black text-slate-400 uppercase mb-1">Nghĩa tiếng Việt (tùy chọn)</label>
+                                <input type="text" id="fillblank-meaning" placeholder="VD: Con mèo ở trong hộp." class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+                            </div>
+                            <p class="text-[11px] font-black text-slate-400 uppercase pt-1">3 lựa chọn - bấm chọn ô để đánh dấu đáp án đúng</p>
+                            <div id="fillblank-options-inputs" class="space-y-2"></div>
+                            <button onclick="saveFillBlank()" class="w-full bubble-btn bg-blue-500 hover:bg-blue-600 text-white font-black py-2.5 rounded-2xl border-b-4 border-blue-700 transition text-sm"><i class="fa-solid fa-floppy-disk mr-1"></i> Lưu Câu</button>
+                        </div>
+                    </div>
+
+                    <div id="fillblank-list" class="space-y-2"></div>
+
+                    <div id="fillblank-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-blue-100 text-center space-y-5">
+                        <p id="fillblank-pool-count-text" class="text-sm font-bold text-slate-500">Có 0 câu để luyện</p>
+                        <button onclick="startFillBlankGame()" class="bubble-btn bg-blue-500 hover:bg-blue-600 text-white font-black py-3 px-8 rounded-2xl border-b-4 border-blue-700 shadow-md transition">
+                            <i class="fa-solid fa-play mr-1.5"></i> Bắt Đầu Luyện Tập!
+                        </button>
+                    </div>
+                </div>
+
+                <div id="fillblank-play-screen" class="hidden bg-white p-4 sm:p-6 rounded-[2.5rem] shadow-sm border-4 border-blue-100 space-y-4">
+                    <div class="flex flex-wrap justify-between items-center gap-2 text-xs font-bold text-slate-500 border-b pb-3">
+                        <span id="fillblank-progress-text" class="text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">Câu 1 / 10</span>
+                        <span id="fillblank-score-text" class="text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">✅ Đúng: 0</span>
+                        <button onclick="resetFillBlankTabUI()" class="text-slate-400 hover:text-slate-600 text-xs font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Quay lại</button>
+                    </div>
+
+                    <div class="bg-blue-50 border-2 border-blue-100 rounded-2xl p-5 text-center">
+                        <h3 id="fillblank-sentence-text" class="text-lg sm:text-xl font-extrabold text-blue-700 break-words">...</h3>
+                        <p id="fillblank-meaning-text" class="text-sm text-slate-500 font-semibold mt-1"></p>
+                    </div>
+
+                    <div id="fillblank-options-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+
+                    <div id="fillblank-feedback" class="hidden text-center p-4 rounded-2xl"></div>
+
+                    <button onclick="nextFillBlankItem()" id="fillblank-next-btn" class="hidden w-full bubble-btn bg-slate-100 hover:bg-slate-200 text-slate-600 font-black py-2.5 rounded-2xl transition text-sm">
+                        Câu Tiếp Theo <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <div id="result-modal" class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/50 hidden backdrop-blur-sm p-4">
@@ -1436,6 +1598,7 @@
             </div>
         </div>
     </div>
+
     <!-- Modal Sửa Câu (dùng chung cho Đối Thoại và Câu Thường Gặp) -->
     <div id="comm-edit-modal" class="fixed inset-0 z-[225] flex items-center justify-center bg-slate-900/50 hidden backdrop-blur-sm p-4">
         <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto transform transition-all scale-95 opacity-0 duration-200" id="comm-edit-modal-box">
@@ -1905,6 +2068,25 @@
 
         // Khởi tạo tài sản trẻ em
         let vocabulary = JSON.parse(getPData('daily_vocab')) || [];
+
+        // ==== NGỮ PHÁP (Grammar Module) ====
+        let grammarTopics = JSON.parse(getPData('grammar_topics')) || [];
+        let grammarChoicePairs = JSON.parse(getPData('grammar_choice_pairs')) || [];
+        let grammarFillBlanks = JSON.parse(getPData('grammar_fill_blanks')) || [];
+        let grammarSubTab = 'notebook';
+        let fillBlankFormCorrectIndex = 0;
+
+        // Trạng thái chơi Chọn Câu Đúng
+        let choiceSessionPairs = [];
+        let choiceIndex = 0;
+        let choiceScore = 0;
+        let choiceAnswered = false;
+
+        // Trạng thái chơi Điền Đúng Dạng Từ
+        let fillBlankSessionItems = [];
+        let fillBlankIndex = 0;
+        let fillBlankScore = 0;
+        let fillBlankAnswered = false;
 
         // ==== ÔN TẬP THÔNG MINH (Smart Review) ====
         // wordStats[wordId] = { correct: số lần đúng, wrong: số lần sai, lastSeen: thời điểm gần nhất }
@@ -2965,6 +3147,9 @@
             if (tabId === 'speaking-zone') {
                 initSpeakingTab();
             }
+            if (tabId === 'grammar-zone') {
+                initGrammarTab();
+            }
         }
 
         function clearSearch() {
@@ -3015,7 +3200,10 @@
                 activityLog: JSON.parse(getPData('kid_activity_log')) || {},
                 bubbleBestScore: bubbleBestScore,
                 bubbleDifficulty: bubbleDifficulty,
-                wordStats: wordStats
+                wordStats: wordStats,
+                grammarTopics: grammarTopics,
+                grammarChoicePairs: grammarChoicePairs,
+                grammarFillBlanks: grammarFillBlanks
             };
         }
 
@@ -3134,6 +3322,9 @@
             bubbleBestScore = data.bubbleBestScore || 0;
             bubbleDifficulty = data.bubbleDifficulty || 'normal';
             wordStats = data.wordStats || {};
+            grammarTopics = data.grammarTopics || [];
+            grammarChoicePairs = data.grammarChoicePairs || [];
+            grammarFillBlanks = data.grammarFillBlanks || [];
 
             setPData('daily_vocab', JSON.stringify(vocabulary));
             setPData('kid_xp', kidXP);
@@ -3153,6 +3344,9 @@
             setPData('kid_bubble_best', bubbleBestScore);
             setPData('kid_bubble_difficulty', bubbleDifficulty);
             setPData('word_stats', JSON.stringify(wordStats));
+            setPData('grammar_topics', JSON.stringify(grammarTopics));
+            setPData('grammar_choice_pairs', JSON.stringify(grammarChoicePairs));
+            setPData('grammar_fill_blanks', JSON.stringify(grammarFillBlanks));
 
             if (options.silent) return; // Đang hydrate ngầm từ cloud lúc khởi động - không cần vẽ lại UI hay báo gì cả, để finishAppStartup() lo phần hiển thị
 
@@ -5545,6 +5739,546 @@
             addKidAssets(10, 5); // Thưởng hoàn thành trọn bộ
             showModal("HOÀN THÀNH GHÉP TỪ! 🔤✨", `Bé đã ghép đúng ${scrambleScore} / ${scrambleSessionWords.length} từ trong vòng này! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
             resetScrambleTabUI();
+        }
+
+        // ==== NGỮ PHÁP (Grammar Module) ====
+
+        function switchGrammarSubTab(subTab) {
+            grammarSubTab = subTab;
+            ['notebook', 'choice', 'fillblank'].forEach(key => {
+                document.getElementById(`grammar-panel-${key}`)?.classList.toggle('hidden', key !== subTab);
+                document.getElementById(`grammar-subtab-btn-${key}`)?.classList.toggle('active', key === subTab);
+            });
+            if (subTab === 'notebook') renderGrammarTopics();
+            if (subTab === 'choice') { renderChoicePairsList(); resetChoiceTabUI(); }
+            if (subTab === 'fillblank') { renderFillBlankList(); resetFillBlankTabUI(); }
+        }
+
+        function initGrammarTab() {
+            switchGrammarSubTab(grammarSubTab);
+        }
+
+        // --- 1. Sổ Tay Ngữ Pháp ---
+        function toggleGrammarTopicForm() {
+            const form = document.getElementById('grammar-topic-form');
+            const isHidden = form.classList.contains('hidden');
+            if (isHidden) {
+                resetGrammarTopicForm();
+                renderGrammarExampleInputs([]);
+            }
+            form.classList.toggle('hidden');
+        }
+
+        function resetGrammarTopicForm() {
+            document.getElementById('grammar-topic-edit-id').value = '';
+            document.getElementById('grammar-topic-icon').value = '📘';
+            document.getElementById('grammar-topic-title').value = '';
+            document.getElementById('grammar-topic-explanation').value = '';
+            document.getElementById('grammar-topic-formula').value = '';
+        }
+
+        function renderGrammarExampleInputs(examples) {
+            const container = document.getElementById('grammar-topic-examples-inputs');
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const ex = examples[i] || { en: '', vi: '' };
+                const row = document.createElement('div');
+                row.className = "grid grid-cols-2 gap-2";
+                row.innerHTML = `
+                    <input type="text" value="${(ex.en || '').replace(/"/g, '&quot;')}" placeholder="Câu tiếng Anh ${i + 1}..." class="grammar-example-en px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xs">
+                    <input type="text" value="${(ex.vi || '').replace(/"/g, '&quot;')}" placeholder="Nghĩa tiếng Việt..." class="grammar-example-vi px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-xs">
+                `;
+                container.appendChild(row);
+            }
+        }
+
+        function saveGrammarTopic() {
+            const title = document.getElementById('grammar-topic-title').value.trim();
+            const icon = document.getElementById('grammar-topic-icon').value.trim() || '📘';
+            const explanation = document.getElementById('grammar-topic-explanation').value.trim();
+            const formula = document.getElementById('grammar-topic-formula').value.trim();
+            const editId = document.getElementById('grammar-topic-edit-id').value;
+
+            if (!title || !explanation) {
+                showModal("Thiếu thông tin", "Bé/phụ huynh hãy nhập tên chủ điểm và giải thích ngắn gọn nha!", "warning");
+                return;
+            }
+
+            const enInputs = document.querySelectorAll('.grammar-example-en');
+            const viInputs = document.querySelectorAll('.grammar-example-vi');
+            const examples = [];
+            enInputs.forEach((input, i) => {
+                const en = input.value.trim();
+                const vi = viInputs[i].value.trim();
+                if (en) examples.push({ en, vi });
+            });
+
+            if (editId) {
+                grammarTopics = grammarTopics.map(t => t.id == editId ? { ...t, title, icon, explanation, formula, examples } : t);
+            } else {
+                grammarTopics.push({ id: Date.now(), title, icon, explanation, formula, examples });
+            }
+            setPData('grammar_topics', JSON.stringify(grammarTopics));
+
+            document.getElementById('grammar-topic-form').classList.add('hidden');
+            renderGrammarTopics();
+            playSoundEffect('correct');
+        }
+
+        function editGrammarTopic(id) {
+            const topic = grammarTopics.find(t => t.id === id);
+            if (!topic) return;
+            document.getElementById('grammar-topic-form').classList.remove('hidden');
+            document.getElementById('grammar-topic-edit-id').value = topic.id;
+            document.getElementById('grammar-topic-icon').value = topic.icon;
+            document.getElementById('grammar-topic-title').value = topic.title;
+            document.getElementById('grammar-topic-explanation').value = topic.explanation;
+            document.getElementById('grammar-topic-formula').value = topic.formula || '';
+            renderGrammarExampleInputs(topic.examples || []);
+        }
+
+        function deleteGrammarTopic(id) {
+            openCommConfirmDelete("Bé có chắc muốn xóa chủ điểm ngữ pháp này không?", () => {
+                grammarTopics = grammarTopics.filter(t => t.id !== id);
+                setPData('grammar_topics', JSON.stringify(grammarTopics));
+                renderGrammarTopics();
+            });
+        }
+
+        function toggleGrammarTopicDetail(id) {
+            document.getElementById(`grammar-topic-detail-${id}`)?.classList.toggle('hidden');
+        }
+
+        function renderGrammarTopics() {
+            const container = document.getElementById('grammar-topics-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (grammarTopics.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 font-semibold text-center py-6 bg-white rounded-2xl border-2 border-slate-100">Chưa có chủ điểm ngữ pháp nào. Phụ huynh hãy thêm chủ điểm bé đang học ở trường nha!</p>';
+                return;
+            }
+
+            grammarTopics.forEach(topic => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border-2 border-blue-100 overflow-hidden";
+                const examplesHtml = (topic.examples || []).map(ex => `
+                    <div class="flex items-start gap-2 py-1.5 border-t border-slate-50">
+                        <button onclick="speakListWord('${ex.en.replace(/'/g, "\\'")}', 'us')" class="text-emerald-500 hover:text-emerald-600 mt-0.5"><i class="fa-solid fa-volume-high text-xs"></i></button>
+                        <div>
+                            <p class="text-sm font-bold text-slate-700">${ex.en}</p>
+                            ${ex.vi ? `<p class="text-xs text-slate-400">${ex.vi}</p>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center p-4 cursor-pointer" onclick="toggleGrammarTopicDetail(${topic.id})">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">${topic.icon}</span>
+                            <span class="text-sm font-black text-slate-700">${topic.title}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="event.stopPropagation(); editGrammarTopic(${topic.id})" class="text-amber-500 hover:text-amber-600 text-sm"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="event.stopPropagation(); deleteGrammarTopic(${topic.id})" class="text-red-400 hover:text-red-500 text-sm"><i class="fa-solid fa-trash"></i></button>
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+                        </div>
+                    </div>
+                    <div id="grammar-topic-detail-${topic.id}" class="hidden px-4 pb-4 space-y-2">
+                        <p class="text-sm text-slate-600 font-semibold">${topic.explanation}</p>
+                        ${topic.formula ? `<p class="text-xs font-mono font-black text-blue-600 bg-blue-50 inline-block px-3 py-1.5 rounded-full">${topic.formula}</p>` : ''}
+                        ${examplesHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- 2. Chọn Câu Đúng ---
+        function toggleChoicePairForm() {
+            const form = document.getElementById('choice-pair-form');
+            const isHidden = form.classList.contains('hidden');
+            if (isHidden) resetChoicePairForm();
+            form.classList.toggle('hidden');
+        }
+
+        function resetChoicePairForm() {
+            document.getElementById('choice-pair-edit-id').value = '';
+            document.getElementById('choice-pair-correct').value = '';
+            document.getElementById('choice-pair-incorrect').value = '';
+            document.getElementById('choice-pair-explanation').value = '';
+        }
+
+        function saveChoicePair() {
+            const correct = document.getElementById('choice-pair-correct').value.trim();
+            const incorrect = document.getElementById('choice-pair-incorrect').value.trim();
+            const explanation = document.getElementById('choice-pair-explanation').value.trim();
+            const editId = document.getElementById('choice-pair-edit-id').value;
+
+            if (!correct || !incorrect) {
+                showModal("Thiếu thông tin", "Cần nhập cả câu đúng và câu sai nha!", "warning");
+                return;
+            }
+
+            if (editId) {
+                grammarChoicePairs = grammarChoicePairs.map(p => p.id == editId ? { ...p, correct, incorrect, explanation } : p);
+            } else {
+                grammarChoicePairs.push({ id: Date.now(), correct, incorrect, explanation });
+            }
+            setPData('grammar_choice_pairs', JSON.stringify(grammarChoicePairs));
+
+            document.getElementById('choice-pair-form').classList.add('hidden');
+            renderChoicePairsList();
+            playSoundEffect('correct');
+        }
+
+        function editChoicePair(id) {
+            const pair = grammarChoicePairs.find(p => p.id === id);
+            if (!pair) return;
+            document.getElementById('choice-pair-form').classList.remove('hidden');
+            document.getElementById('choice-pair-edit-id').value = pair.id;
+            document.getElementById('choice-pair-correct').value = pair.correct;
+            document.getElementById('choice-pair-incorrect').value = pair.incorrect;
+            document.getElementById('choice-pair-explanation').value = pair.explanation || '';
+        }
+
+        function deleteChoicePair(id) {
+            openCommConfirmDelete("Bé có chắc muốn xóa cặp câu này không?", () => {
+                grammarChoicePairs = grammarChoicePairs.filter(p => p.id !== id);
+                setPData('grammar_choice_pairs', JSON.stringify(grammarChoicePairs));
+                renderChoicePairsList();
+            });
+        }
+
+        function renderChoicePairsList() {
+            const container = document.getElementById('choice-pairs-list');
+            if (container) {
+                container.innerHTML = '';
+                if (grammarChoicePairs.length > 0) {
+                    const header = document.createElement('p');
+                    header.className = "text-[11px] font-black text-slate-400 uppercase px-1";
+                    header.innerText = `Đã lưu ${grammarChoicePairs.length} cặp câu`;
+                    container.appendChild(header);
+
+                    grammarChoicePairs.forEach(pair => {
+                        const row = document.createElement('div');
+                        row.className = "flex items-center gap-3 p-3 rounded-2xl border-2 border-slate-100 bg-white";
+                        row.innerHTML = `
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-bold text-emerald-600 truncate">✅ ${pair.correct}</p>
+                                <p class="text-xs font-bold text-red-400 truncate">❌ ${pair.incorrect}</p>
+                            </div>
+                            <div class="flex gap-2.5 shrink-0">
+                                <button onclick="editChoicePair(${pair.id})" class="text-amber-500 hover:text-amber-600"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteChoicePair(${pair.id})" class="text-red-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        `;
+                        container.appendChild(row);
+                    });
+                }
+            }
+
+            const countText = document.getElementById('choice-pool-count-text');
+            if (countText) countText.innerText = `Có ${grammarChoicePairs.length} cặp câu để luyện`;
+        }
+
+        function resetChoiceTabUI() {
+            document.getElementById('choice-manage-screen').classList.remove('hidden');
+            document.getElementById('choice-play-screen').classList.add('hidden');
+        }
+
+        function startChoiceGame() {
+            if (grammarChoicePairs.length < 3) {
+                showModal("Chưa đủ cặp câu", "Cần ít nhất 3 cặp câu đúng/sai để bắt đầu luyện tập nha!", "warning");
+                return;
+            }
+            choiceSessionPairs = [...grammarChoicePairs].sort(() => 0.5 - Math.random()).slice(0, Math.min(10, grammarChoicePairs.length));
+            choiceIndex = 0;
+            choiceScore = 0;
+            document.getElementById('choice-manage-screen').classList.add('hidden');
+            document.getElementById('choice-play-screen').classList.remove('hidden');
+            document.getElementById('choice-score-text').innerText = `✅ Đúng: 0`;
+            loadChoiceQuestion();
+        }
+
+        function loadChoiceQuestion() {
+            choiceAnswered = false;
+            const pair = choiceSessionPairs[choiceIndex];
+            document.getElementById('choice-progress-text').innerText = `Câu ${choiceIndex + 1} / ${choiceSessionPairs.length}`;
+
+            const showCorrectFirst = Math.random() < 0.5;
+            const options = showCorrectFirst
+                ? [{ text: pair.correct, isCorrect: true }, { text: pair.incorrect, isCorrect: false }]
+                : [{ text: pair.incorrect, isCorrect: false }, { text: pair.correct, isCorrect: true }];
+
+            const container = document.getElementById('choice-options-container');
+            container.innerHTML = '';
+            options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 transition font-bold text-slate-700 text-sm";
+                btn.innerText = `${String.fromCharCode(65 + idx)}. ${opt.text}`;
+                btn.onclick = () => selectChoiceAnswer(opt, btn, pair);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('choice-feedback').classList.add('hidden');
+            document.getElementById('choice-next-btn').classList.add('hidden');
+        }
+
+        function selectChoiceAnswer(selectedOption, btnEl, pair) {
+            if (choiceAnswered) return;
+            choiceAnswered = true;
+
+            const container = document.getElementById('choice-options-container');
+            Array.from(container.children).forEach(b => b.disabled = true);
+
+            const feedback = document.getElementById('choice-feedback');
+            feedback.classList.remove('hidden');
+            document.getElementById('choice-next-btn').classList.remove('hidden');
+
+            if (selectedOption.isCorrect) {
+                btnEl.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-100 text-emerald-800 font-black text-sm animate-happy";
+                feedback.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200";
+                feedback.innerHTML = `<p class="font-black text-emerald-600">🎉 Chính xác!</p>${pair.explanation ? `<p class="text-xs text-slate-500 font-semibold mt-1">${pair.explanation}</p>` : ''}`;
+                playSoundEffect('correct');
+                addKidAssets(10, 5);
+                choiceScore++;
+                document.getElementById('choice-score-text').innerText = `✅ Đúng: ${choiceScore}`;
+            } else {
+                btnEl.className = "w-full text-left p-4 rounded-2xl border-2 border-red-400 bg-red-100 text-red-800 font-black text-sm animate-shake";
+                Array.from(container.children).forEach(b => {
+                    if (b.innerText.includes(pair.correct)) {
+                        b.className = "w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-100 text-emerald-800 font-black text-sm";
+                    }
+                });
+                feedback.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-200";
+                feedback.innerHTML = `<p class="font-black text-red-500">❌ Chưa đúng rồi</p>${pair.explanation ? `<p class="text-xs text-slate-500 font-semibold mt-1">${pair.explanation}</p>` : ''}`;
+                playSoundEffect('wrong');
+            }
+        }
+
+        function nextChoiceItem() {
+            choiceIndex++;
+            if (choiceIndex >= choiceSessionPairs.length) {
+                finishChoiceGame();
+            } else {
+                loadChoiceQuestion();
+            }
+        }
+
+        function finishChoiceGame() {
+            playSoundEffect('levelup');
+            triggerConfettiFireworks();
+            addKidAssets(10, 5);
+            showModal("HOÀN THÀNH! ✅✨", `Bé đã chọn đúng ${choiceScore} / ${choiceSessionPairs.length} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
+            resetChoiceTabUI();
+        }
+
+        // --- 3. Điền Đúng Dạng Từ ---
+        function toggleFillBlankForm() {
+            const form = document.getElementById('fillblank-form');
+            const isHidden = form.classList.contains('hidden');
+            if (isHidden) {
+                resetFillBlankForm();
+                renderFillBlankOptionInputs(['', '', ''], 0);
+            }
+            form.classList.toggle('hidden');
+        }
+
+        function resetFillBlankForm() {
+            document.getElementById('fillblank-edit-id').value = '';
+            document.getElementById('fillblank-sentence').value = '';
+            document.getElementById('fillblank-meaning').value = '';
+        }
+
+        function renderFillBlankOptionInputs(optionValues, correctIndex) {
+            fillBlankFormCorrectIndex = correctIndex;
+            const container = document.getElementById('fillblank-options-inputs');
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const row = document.createElement('div');
+                row.className = "flex items-center gap-2";
+                row.innerHTML = `
+                    <button type="button" onclick="setFillBlankCorrectIndex(${i})" id="fillblank-correct-marker-${i}" class="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition ${i === correctIndex ? 'bg-emerald-500 border-emerald-600 text-white' : 'bg-blue-50 border-blue-200 text-blue-300'}">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </button>
+                    <input type="text" value="${(optionValues[i] || '').replace(/"/g, '&quot;')}" placeholder="Lựa chọn ${i + 1}..." class="fillblank-option-input flex-1 px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+                `;
+                container.appendChild(row);
+            }
+        }
+
+        function setFillBlankCorrectIndex(idx) {
+            fillBlankFormCorrectIndex = idx;
+            for (let i = 0; i < 3; i++) {
+                const marker = document.getElementById(`fillblank-correct-marker-${i}`);
+                if (marker) marker.className = `w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition ${i === idx ? 'bg-emerald-500 border-emerald-600 text-white' : 'bg-blue-50 border-blue-200 text-blue-300'}`;
+            }
+        }
+
+        function saveFillBlank() {
+            const sentence = document.getElementById('fillblank-sentence').value.trim();
+            const meaning = document.getElementById('fillblank-meaning').value.trim();
+            const editId = document.getElementById('fillblank-edit-id').value;
+
+            if (!sentence.includes('___')) {
+                showModal("Thiếu chỗ trống", 'Câu cần có dấu "___" để đánh dấu chỗ trống nha!', "warning");
+                return;
+            }
+
+            const optionInputs = document.querySelectorAll('.fillblank-option-input');
+            const options = Array.from(optionInputs).map(inp => inp.value.trim());
+            if (options.some(o => !o)) {
+                showModal("Thiếu lựa chọn", "Cần nhập đủ 3 lựa chọn nha!", "warning");
+                return;
+            }
+
+            const item = { id: editId ? parseInt(editId) : Date.now(), sentence, meaning, options, correctIndex: fillBlankFormCorrectIndex };
+
+            if (editId) {
+                grammarFillBlanks = grammarFillBlanks.map(b => b.id == editId ? item : b);
+            } else {
+                grammarFillBlanks.push(item);
+            }
+            setPData('grammar_fill_blanks', JSON.stringify(grammarFillBlanks));
+
+            document.getElementById('fillblank-form').classList.add('hidden');
+            renderFillBlankList();
+            playSoundEffect('correct');
+        }
+
+        function editFillBlank(id) {
+            const item = grammarFillBlanks.find(b => b.id === id);
+            if (!item) return;
+            document.getElementById('fillblank-form').classList.remove('hidden');
+            document.getElementById('fillblank-edit-id').value = item.id;
+            document.getElementById('fillblank-sentence').value = item.sentence;
+            document.getElementById('fillblank-meaning').value = item.meaning || '';
+            renderFillBlankOptionInputs(item.options, item.correctIndex);
+        }
+
+        function deleteFillBlank(id) {
+            openCommConfirmDelete("Bé có chắc muốn xóa câu này không?", () => {
+                grammarFillBlanks = grammarFillBlanks.filter(b => b.id !== id);
+                setPData('grammar_fill_blanks', JSON.stringify(grammarFillBlanks));
+                renderFillBlankList();
+            });
+        }
+
+        function renderFillBlankList() {
+            const container = document.getElementById('fillblank-list');
+            if (container) {
+                container.innerHTML = '';
+                grammarFillBlanks.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "flex items-center gap-3 p-3 rounded-2xl border-2 border-slate-100 bg-white";
+                    row.innerHTML = `
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-slate-700 truncate">${item.sentence}</p>
+                            <p class="text-xs text-slate-400 truncate">Đáp án: ${item.options[item.correctIndex]}</p>
+                        </div>
+                        <div class="flex gap-2.5 shrink-0">
+                            <button onclick="editFillBlank(${item.id})" class="text-amber-500 hover:text-amber-600"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteFillBlank(${item.id})" class="text-red-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+
+            const countText = document.getElementById('fillblank-pool-count-text');
+            if (countText) countText.innerText = `Có ${grammarFillBlanks.length} câu để luyện`;
+        }
+
+        function resetFillBlankTabUI() {
+            document.getElementById('fillblank-manage-screen').classList.remove('hidden');
+            document.getElementById('fillblank-play-screen').classList.add('hidden');
+        }
+
+        function startFillBlankGame() {
+            if (grammarFillBlanks.length < 3) {
+                showModal("Chưa đủ câu", "Cần ít nhất 3 câu điền khuyết để bắt đầu luyện tập nha!", "warning");
+                return;
+            }
+            fillBlankSessionItems = [...grammarFillBlanks].sort(() => 0.5 - Math.random()).slice(0, Math.min(10, grammarFillBlanks.length));
+            fillBlankIndex = 0;
+            fillBlankScore = 0;
+            document.getElementById('fillblank-manage-screen').classList.add('hidden');
+            document.getElementById('fillblank-play-screen').classList.remove('hidden');
+            document.getElementById('fillblank-score-text').innerText = `✅ Đúng: 0`;
+            loadFillBlankQuestion();
+        }
+
+        function loadFillBlankQuestion() {
+            fillBlankAnswered = false;
+            const item = fillBlankSessionItems[fillBlankIndex];
+            document.getElementById('fillblank-progress-text').innerText = `Câu ${fillBlankIndex + 1} / ${fillBlankSessionItems.length}`;
+            document.getElementById('fillblank-sentence-text').innerText = item.sentence.replace('___', '_____');
+            document.getElementById('fillblank-meaning-text').innerText = item.meaning || '';
+
+            const shuffledOptions = item.options.map((text, idx) => ({ text, isCorrect: idx === item.correctIndex })).sort(() => 0.5 - Math.random());
+
+            const container = document.getElementById('fillblank-options-container');
+            container.innerHTML = '';
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 transition font-black text-slate-700 text-sm";
+                btn.innerText = opt.text;
+                btn.onclick = () => selectFillBlankAnswer(opt, btn, item);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('fillblank-feedback').classList.add('hidden');
+            document.getElementById('fillblank-next-btn').classList.add('hidden');
+        }
+
+        function selectFillBlankAnswer(selectedOption, btnEl, item) {
+            if (fillBlankAnswered) return;
+            fillBlankAnswered = true;
+
+            const container = document.getElementById('fillblank-options-container');
+            Array.from(container.children).forEach(b => b.disabled = true);
+
+            const feedback = document.getElementById('fillblank-feedback');
+            feedback.classList.remove('hidden');
+            document.getElementById('fillblank-next-btn').classList.remove('hidden');
+
+            if (selectedOption.isCorrect) {
+                btnEl.className = "p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-100 text-emerald-800 font-black text-sm animate-happy";
+                feedback.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200";
+                feedback.innerHTML = `<p class="font-black text-emerald-600">🎉 Chính xác!</p>`;
+                playSoundEffect('correct');
+                addKidAssets(8, 5);
+                fillBlankScore++;
+                document.getElementById('fillblank-score-text').innerText = `✅ Đúng: ${fillBlankScore}`;
+            } else {
+                btnEl.className = "p-3 rounded-2xl border-2 border-red-400 bg-red-100 text-red-800 font-black text-sm animate-shake";
+                Array.from(container.children).forEach(b => {
+                    if (b.innerText === item.options[item.correctIndex]) {
+                        b.className = "p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-100 text-emerald-800 font-black text-sm";
+                    }
+                });
+                feedback.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-200";
+                feedback.innerHTML = `<p class="font-black text-red-500">❌ Đáp án đúng là: "${item.options[item.correctIndex]}"</p>`;
+                playSoundEffect('wrong');
+            }
+        }
+
+        function nextFillBlankItem() {
+            fillBlankIndex++;
+            if (fillBlankIndex >= fillBlankSessionItems.length) {
+                finishFillBlankGame();
+            } else {
+                loadFillBlankQuestion();
+            }
+        }
+
+        function finishFillBlankGame() {
+            playSoundEffect('levelup');
+            triggerConfettiFireworks();
+            addKidAssets(10, 5);
+            showModal("HOÀN THÀNH! 📝✨", `Bé đã điền đúng ${fillBlankScore} / ${fillBlankSessionItems.length} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
+            resetFillBlankTabUI();
         }
 
         function finishAppStartup() {
