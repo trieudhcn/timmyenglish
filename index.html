@@ -258,9 +258,116 @@
         }
 
         /* Luyện Phát Âm - hiệu ứng mic đang lắng nghe */
-        .mic-listening {
-            animation: micPulse 1s infinite;
-        }
+		/* Nút Micro mặc định & Hiệu ứng hover */
+		.mic-btn-wrapper {
+		  position: relative;
+		  display: inline-flex;
+		  align-items: center;
+		  justify-content: center;
+		}
+
+		/* Vòng sóng lan tỏa khi đang nghe (Ripple Effect) */
+		/* Hiệu ứng nút Micro khi đang lắng nghe */
+		.mic-listening {
+		  position: relative;
+		  background: linear-gradient(135deg, #ff3b5c, #ff6b81) !important;
+		  z-index: 1;
+		  animation: micPulseGlow 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+		}
+		/* Các vòng sóng lan tỏa phía sau nút micro */
+		.mic-listening::before,
+		.mic-listening::after {
+		  content: '';
+		  position: absolute;
+		  inset: 0;
+		  border-radius: 50%;
+		  background: rgba(255, 59, 92, 0.35);
+		  z-index: -1;
+		  animation: rippleExpand 2s infinite ease-out;
+		}
+		/* Vòng sóng thứ hai lệch pha để tạo hiệu ứng nối tiếp */
+		.mic-listening::after {
+		  animation-delay: 0.7s;
+		}
+
+		/* Animation mở rộng vòng sóng bên ngoài */
+		@keyframes rippleExpand {
+		  0% {
+			transform: scale(1);
+			opacity: 0.8;
+		  }
+		  100% {
+			transform: scale(1.85);
+			opacity: 0;
+		  }
+		}
+
+		/* Animation phát sáng đa tầng và nhịp đập nhẹ của nút chính */
+		@keyframes micPulseGlow {
+		  0% {
+			box-shadow: 
+			  0 0 0 0px rgba(255, 59, 92, 0.4),
+			  0 0 0 0px rgba(255, 59, 92, 0.2);
+			transform: scale(1);
+		  }
+		  50% {
+			box-shadow: 
+			  0 0 0 14px rgba(255, 59, 92, 0.25),
+			  0 0 0 28px rgba(255, 59, 92, 0.1);
+			transform: scale(1.04);
+		  }
+		  100% {
+			box-shadow: 
+			  0 0 0 24px rgba(255, 59, 92, 0),
+			  0 0 0 42px rgba(255, 59, 92, 0);
+			transform: scale(1);
+		  }
+		}
+
+		/* Thanh sóng âm chuyển động (Sound Wave Bars) */
+		.sound-wave-container {
+		  display: flex;
+		  align-items: center;
+		  justify-content: center;
+		  gap: 4px;
+		  height: 24px;
+		  margin-top: 8px;
+		}
+
+		.sound-wave-bar {
+		  width: 4px;
+		  height: 8px;
+		  background-color: #3b82f6;
+		  border-radius: 99px;
+		  animation: wave 1.2s ease-in-out infinite alternate;
+		}
+
+		.sound-wave-bar:nth-child(1) { animation-delay: 0.0s; }
+		.sound-wave-bar:nth-child(2) { animation-delay: 0.2s; }
+		.sound-wave-bar:nth-child(3) { animation-delay: 0.4s; }
+		.sound-wave-bar:nth-child(4) { animation-delay: 0.1s; }
+		.sound-wave-bar:nth-child(5) { animation-delay: 0.3s; }
+
+		@keyframes wave {
+		  0% { height: 6px; opacity: 0.4; }
+		  100% { height: 24px; opacity: 1; background-color: #ec4899; }
+		}
+
+		/* Bong bóng lời nói hiện ngay khi bé đang phát âm */
+		.speech-bubble {
+		  position: relative;
+		  background: #ffffff;
+		  border: 2px solid #3b82f6;
+		  border-radius: 18px;
+		  padding: 10px 16px;
+		  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+		  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+		}
+
+		@keyframes popIn {
+		  0% { transform: scale(0.8); opacity: 0; }
+		  100% { transform: scale(1); opacity: 1; }
+		}
         @keyframes micPulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5); }
             50% { box-shadow: 0 0 0 16px rgba(244, 63, 94, 0); }
@@ -308,87 +415,6 @@
         .timer-bar {
             transition: width 0.1s linear;
         }
-
-		/* Khung chứa mic cố định hình tròn */
-		.mic-wrapper {
-			position: relative;
-			width: 90px;
-			height: 90px;
-			display: inline-flex;
-			justify-content: center;
-			align-items: center;
-			border-radius: 50%;
-		}
-
-		/* Nút Micro 3D */
-		.mic-button {
-			width: 90px;
-			height: 90px;
-			border-radius: 50%;
-			border: none;
-			outline: none;
-			background: linear-gradient(135deg, #ff7e5f, #feb47b);
-			box-shadow: 0 8px 20px rgba(255, 126, 95, 0.4);
-			cursor: pointer;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			transition: transform 0.2s ease-in-out;
-			position: relative;
-			z-index: 2;
-			-webkit-tap-highlight-color: transparent;
-		}
-
-		.mic-button:hover {
-			transform: scale(1.05);
-		}
-
-		.mic-button:active {
-			transform: scale(0.95);
-		}
-
-		/* Trạng thái thu âm */
-		.mic-button.mic-listening {
-			background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;
-			box-shadow: 0 8px 25px rgba(255, 65, 108, 0.5) !important;
-			animation: mic-bounce 1.2s infinite ease-in-out;
-		}
-
-		/* Hiệu ứng sóng âm tròn chuẩn 100% */
-		.mic-wrapper.mic-listening::before,
-		.mic-wrapper.mic-listening::after {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			border-radius: 50%;
-			background-color: rgba(255, 65, 108, 0.35);
-			z-index: 1;
-			animation: pulse-wave 1.6s infinite ease-out;
-			pointer-events: none;
-		}
-
-		.mic-wrapper.mic-listening::after {
-			animation-delay: 0.5s;
-		}
-
-		@keyframes mic-bounce {
-			0%, 100% { transform: scale(1); }
-			50% { transform: scale(1.06); }
-		}
-
-		@keyframes pulse-wave {
-			0% {
-				transform: scale(1);
-				opacity: 0.8;
-			}
-			100% {
-				transform: scale(1.7);
-				opacity: 0;
-			}
-		}
 
         /* Hiệu ứng Pháo hoa giấy (Confetti) mừng thăng cấp */
         .confetti-piece {
@@ -1357,21 +1383,27 @@
                         <button onclick="playSpeakingSample()" class="mt-3 text-rose-500 hover:text-rose-600 text-sm font-black"><i class="fa-solid fa-volume-high mr-1"></i> Nghe Mẫu</button>
                     </div>
 
-					<div class="text-center flex flex-col items-center justify-center my-4">
-						<!-- Khung bọc tạo hiệu ứng sóng âm lan tỏa -->
-						<div class="mic-wrapper" id="speaking-mic-wrapper">
-							<button onclick="toggleSpeakingRecognition()" 
-									id="speaking-mic-btn" 
-									class="mic-button">
-								<!-- Icon Micro từ Font Awesome -->
-								<i class="fa-solid fa-microphone text-4xl text-white mic-icon"></i>
-							</button>
+					<div class="flex flex-col items-center justify-center gap-2">
+						<!-- Nút Micro -->
+					<div class="mic-btn-wrapper overflow-visible">
+						<button onclick="toggleSpeakingRecognition()" id="speaking-mic-btn" class="w-20 h-20 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-3xl shadow-lg transition flex items-center justify-center mx-auto">
+							<i class="fa-solid fa-microphone"></i>
+						</button>
+					</div>
+
+						<!-- Sóng âm động (Hiển thị khi bắt đầu nghe) -->
+						<div id="sound-wave" class="sound-wave-container hidden">
+							<div class="sound-wave-bar"></div>
+							<div class="sound-wave-bar"></div>
+							<div class="sound-wave-bar"></div>
+							<div class="sound-wave-bar"></div>
+							<div class="sound-wave-bar"></div>
 						</div>
 
-						<!-- Dòng chữ hiển thị trạng thái và lời bé đang nói -->
-						<p id="speaking-mic-hint" class="text-xs text-slate-500 font-bold mt-4 transition-all">
+						<!-- Dòng gợi ý / Bong bóng thoại -->
+						<div id="speaking-mic-hint" class="text-xs text-slate-400 font-bold transition-all duration-200">
 							Bấm vào mic rồi nói to câu trên nha!
-						</p>
+						</div>
 					</div>
 
                     <div id="speaking-result-box" class="hidden text-center p-4 rounded-2xl"></div>
@@ -4540,6 +4572,8 @@
         let speakingRecognizer = null;
         let isSpeakingListening = false;
         let speakingSessionCorrect = 0;
+        let speakingAutoStopTimer = null; // Tự động dừng nghe sau vài giây thay vì chờ trình duyệt tự phát hiện im lặng (giảm delay)
+        let speakingStopIsManual = false; // Phân biệt bé/hệ thống chủ động hủy nghe (không chấm điểm) và tự động dừng do hết giờ chờ (vẫn chấm theo kết quả tạm gần nhất)
 
         function setBubbleDifficulty(level) {
             bubbleDifficulty = level;
@@ -5388,292 +5422,287 @@
             });
         }
 
-			// ==== LUYỆN PHÁT ÂM (Speaking Practice) ====
+        // ==== LUYỆN PHÁT ÂM (Speaking Practice) ====
 
-			function getSpeechRecognitionClass() {
-				return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-			}
+        function getSpeechRecognitionClass() {
+            return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+        }
 
-			function initSpeakingTab() {
-				const SR = getSpeechRecognitionClass();
-				document.getElementById('speaking-unsupported').classList.toggle('hidden', !!SR);
-				document.getElementById('speaking-main-content').classList.toggle('hidden', !SR);
-				if (!SR) return;
+        function initSpeakingTab() {
+            const SR = getSpeechRecognitionClass();
+            document.getElementById('speaking-unsupported').classList.toggle('hidden', !!SR);
+            document.getElementById('speaking-main-content').classList.toggle('hidden', !SR);
+            if (!SR) return;
 
-				switchSpeakingMode(speakingMode);
-				resetSpeakingTabUI();
-			}
+            switchSpeakingMode(speakingMode);
+            resetSpeakingTabUI();
+        }
 
-			function getSpeakingPoolSource(mode) {
-				if (mode === 'vocab') {
-					return vocabulary.map(w => ({ id: w.id, text: w.english, meaning: w.vietnamese, ipaUk: w.ipaUk || '', ipaUs: w.ipaUs || '' }));
-				}
-				const fromCommon = commonSentences.map(s => ({ text: s.english, meaning: s.vietnamese, ipaUk: '', ipaUs: '' }));
-				const fromDialogues = dialogues.flatMap(d => d.turns.map(t => ({ text: t.english, meaning: t.vietnamese, ipaUk: '', ipaUs: '' })));
-				return [...fromCommon, ...fromDialogues];
-			}
+        function getSpeakingPoolSource(mode) {
+            if (mode === 'vocab') {
+                return vocabulary.map(w => ({ id: w.id, text: w.english, meaning: w.vietnamese, ipaUk: w.ipaUk || '', ipaUs: w.ipaUs || '' }));
+            }
+            const fromCommon = commonSentences.map(s => ({ text: s.english, meaning: s.vietnamese, ipaUk: '', ipaUs: '' }));
+            const fromDialogues = dialogues.flatMap(d => d.turns.map(t => ({ text: t.english, meaning: t.vietnamese, ipaUk: '', ipaUs: '' })));
+            return [...fromCommon, ...fromDialogues];
+        }
 
-			function switchSpeakingMode(mode) {
-				speakingMode = mode;
-				document.getElementById('speaking-mode-btn-vocab').classList.toggle('active', mode === 'vocab');
-				document.getElementById('speaking-mode-btn-sentence').classList.toggle('active', mode === 'sentence');
+        function switchSpeakingMode(mode) {
+            speakingMode = mode;
+            document.getElementById('speaking-mode-btn-vocab').classList.toggle('active', mode === 'vocab');
+            document.getElementById('speaking-mode-btn-sentence').classList.toggle('active', mode === 'sentence');
 
-				const pool = getSpeakingPoolSource(mode);
-				document.getElementById('speaking-pool-count-text').innerText = mode === 'vocab'
-					? `Có ${pool.length} từ vựng để luyện`
-					: `Có ${pool.length} câu giao tiếp để luyện`;
-			}
+            const pool = getSpeakingPoolSource(mode);
+            document.getElementById('speaking-pool-count-text').innerText = mode === 'vocab'
+                ? `Có ${pool.length} từ vựng để luyện`
+                : `Có ${pool.length} câu giao tiếp để luyện`;
+        }
 
-			function resetSpeakingTabUI() {
+        function resetSpeakingTabUI() {
+            stopSpeakingRecognition();
+            document.getElementById('speaking-start-screen').classList.remove('hidden');
+            document.getElementById('speaking-play-screen').classList.add('hidden');
+            document.getElementById('speaking-empty').classList.add('hidden');
+        }
+
+        function startSpeakingSession() {
+            const pool = getSpeakingPoolSource(speakingMode);
+            if (pool.length === 0) {
+                document.getElementById('speaking-start-screen').classList.add('hidden');
+                document.getElementById('speaking-empty-message').innerText = speakingMode === 'vocab'
+                    ? "Bé hãy vào Sổ Từ thêm từ vựng trước nha!"
+                    : "Bé hãy vào tab Giao Tiếp thêm câu đối thoại hoặc câu thường gặp trước nha!";
+                document.getElementById('speaking-empty').classList.remove('hidden');
+                return;
+            }
+
+            speakingPool = weightedSampleWords(pool, Math.min(10, pool.length));
+            speakingIndex = 0;
+            speakingSessionCorrect = 0;
+
+            document.getElementById('speaking-start-screen').classList.add('hidden');
+            document.getElementById('speaking-empty').classList.add('hidden');
+            document.getElementById('speaking-play-screen').classList.remove('hidden');
+
+            loadSpeakingItem();
+        }
+
+        function loadSpeakingItem() {
+            stopSpeakingRecognition();
+            const item = speakingPool[speakingIndex];
+            document.getElementById('speaking-progress-text').innerText = `Câu ${speakingIndex + 1} / ${speakingPool.length}`;
+            document.getElementById('speaking-target-text').innerText = item.text;
+            document.getElementById('speaking-target-meaning').innerText = item.meaning;
+
+            const ipaBox = document.getElementById('speaking-target-ipa');
+            const hasIpa = !!(item.ipaUk || item.ipaUs);
+            document.getElementById('speaking-target-ipa-uk').innerText = item.ipaUk ? `UK: ${item.ipaUk}` : '';
+            document.getElementById('speaking-target-ipa-us').innerText = item.ipaUs ? `US: ${item.ipaUs}` : '';
+            ipaBox.style.display = hasIpa ? 'flex' : 'none';
+
+            const resultBox = document.getElementById('speaking-result-box');
+            resultBox.classList.add('hidden');
+            resultBox.innerHTML = '';
+            document.getElementById('speaking-next-btn').classList.add('hidden');
+            document.getElementById('speaking-mic-hint').innerText = 'Bấm vào mic rồi nói to câu trên nha!';
+
+            playSpeakingSample();
+        }
+
+        function playSpeakingSample() {
+            const item = speakingPool[speakingIndex];
+            if (!item) return;
+            speakListWord(item.text, 'us');
+        }
+
+		function toggleSpeakingRecognition() {
+			if (isSpeakingListening) {
 				stopSpeakingRecognition();
-				document.getElementById('speaking-start-screen').classList.remove('hidden');
-				document.getElementById('speaking-play-screen').classList.add('hidden');
-				document.getElementById('speaking-empty').classList.add('hidden');
+				return;
 			}
 
-			function startSpeakingSession() {
-				const pool = getSpeakingPoolSource(speakingMode);
-				if (pool.length === 0) {
-					document.getElementById('speaking-start-screen').classList.add('hidden');
-					document.getElementById('speaking-empty-message').innerText = speakingMode === 'vocab'
-						? "Bé hãy vào Sổ Từ thêm từ vựng trước nha!"
-						: "Bé hãy vào tab Giao Tiếp thêm câu đối thoại hoặc câu thường gặp trước nha!";
-					document.getElementById('speaking-empty').classList.remove('hidden');
-					return;
+			const SR = getSpeechRecognitionClass();
+			if (!SR) return;
+
+			speakingRecognizer = new SR();
+			speakingRecognizer.lang = 'en-US';
+			speakingRecognizer.continuous = false;
+			speakingRecognizer.interimResults = true; 
+			speakingRecognizer.maxAlternatives = 1;
+
+			let latestTranscript = '';
+			let hasFinalResult = false;
+			speakingStopIsManual = false;
+
+			speakingRecognizer.onstart = () => {
+				isSpeakingListening = true;
+				
+				// --- Cập nhật UI sinh động khi bắt đầu nghe ---
+				const micBtn = document.getElementById('speaking-mic-btn');
+				const hintEl = document.getElementById('speaking-mic-hint');
+				const waveEl = document.getElementById('sound-wave');
+
+				micBtn?.classList.add('mic-listening');
+				waveEl?.classList.remove('hidden'); // Hiện sóng âm nhảy múa
+				
+				hintEl.className = "speech-bubble text-blue-600 font-bold text-center";
+				hintEl.innerHTML = `🎙️ <span class="animate-pulse">Đang nghe... Bé nói to lên nha!</span>`;
+
+				// Tự động dừng nghe sau 4 giây
+				speakingAutoStopTimer = setTimeout(() => {
+					if (isSpeakingListening && speakingRecognizer) {
+						try { speakingRecognizer.stop(); } catch (e) {}
+					}
+				}, 4000);
+			};
+
+			speakingRecognizer.onresult = (event) => {
+				const result = event.results[0];
+				latestTranscript = result[0].transcript;
+				const hintEl = document.getElementById('speaking-mic-hint');
+
+				if (result.isFinal) {
+					hasFinalResult = true;
+					clearTimeout(speakingAutoStopTimer);
+					handleSpeakingResult(latestTranscript);
+				} else {
+					// Bong bóng lời nói hiển thị chữ chạy thời gian thực (real-time typing effect UI)
+					hintEl.className = "speech-bubble text-indigo-600 font-extrabold text-center border-indigo-400";
+					hintEl.innerHTML = `💬 Bé đang nói: <span class="text-pink-500">"${latestTranscript}"</span>...`;
 				}
+			};
 
-				speakingPool = weightedSampleWords(pool, Math.min(10, pool.length));
-				speakingIndex = 0;
-				speakingSessionCorrect = 0;
+			speakingRecognizer.onerror = (event) => {
+				clearTimeout(speakingAutoStopTimer);
+				stopSpeakingRecognition();
+				
+				const hintEl = document.getElementById('speaking-mic-hint');
+				
+				if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+					showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha! Hãy bấm cho phép rồi thử lại.", "warning");
+					if (hintEl) hintEl.innerText = "Chưa mở quyền Micro!";
+				} else if (event.error === 'no-speech') {
+					if (hintEl) {
+						hintEl.className = "text-sm font-bold text-amber-500 text-center";
+						hintEl.innerText = '🤫 Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
+					}
+				}
+			};
 
-				document.getElementById('speaking-start-screen').classList.add('hidden');
-				document.getElementById('speaking-empty').classList.add('hidden');
-				document.getElementById('speaking-play-screen').classList.remove('hidden');
+			speakingRecognizer.onend = () => {
+				clearTimeout(speakingAutoStopTimer);
+				isSpeakingListening = false;
+				
+				// --- Trả giao diện về trạng thái dừng ---
+				document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
+				document.getElementById('sound-wave')?.classList.add('hidden'); // Ẩn sóng âm
 
+				if (!hasFinalResult && !speakingStopIsManual && latestTranscript) {
+					handleSpeakingResult(latestTranscript);
+				}
+			};
+
+			try {
+				speakingRecognizer.start();
+			} catch (e) {
+				console.error(e);
+			}
+		}
+
+		function stopSpeakingRecognition() {
+			speakingStopIsManual = true;
+			clearTimeout(speakingAutoStopTimer);
+			if (speakingRecognizer) {
+				try { speakingRecognizer.stop(); } catch (e) {}
+			}
+			isSpeakingListening = false;
+
+			// Trả UI về mặc định khi bấm dừng thủ công
+			document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
+			document.getElementById('sound-wave')?.classList.add('hidden');
+			
+			const hintEl = document.getElementById('speaking-mic-hint');
+			if (hintEl) {
+				hintEl.className = "text-sm font-bold text-slate-600 text-center";
+				hintEl.innerText = "Bấm nút Micro để tiếp tục luyện nói!";
+			}
+		}
+
+		function normalizeSpeechText(text) {
+			return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+		}
+
+		function computeSpeechSimilarity(a, b) {
+			const na = normalizeSpeechText(a);
+			const nb = normalizeSpeechText(b);
+			if (!na || !nb) return 0;
+			if (na === nb) return 1;
+
+			const wordsA = na.split(' ');
+			const wordsB = nb.split(' ');
+			let matches = 0;
+			const bCopy = [...wordsB];
+			wordsA.forEach(w => {
+				const idx = bCopy.indexOf(w);
+				if (idx !== -1) { matches++; bCopy.splice(idx, 1); }
+			});
+			return matches / Math.max(wordsA.length, wordsB.length);
+		}
+
+		function handleSpeakingResult(transcript) {
+			const item = speakingPool[speakingIndex];
+			const similarity = computeSpeechSimilarity(transcript, item.text);
+
+			const resultBox = document.getElementById('speaking-result-box');
+			const hintEl = document.getElementById('speaking-mic-hint');
+			
+			// Ẩn bong bóng tạm thời khi đã có kết quả chính thức
+			if (hintEl) {
+				hintEl.className = "text-sm font-bold text-slate-500 text-center";
+				hintEl.innerText = "Bấm nút Micro để nói lại lần nữa";
+			}
+
+			resultBox.classList.remove('hidden');
+			document.getElementById('speaking-next-btn')?.classList.remove('hidden');
+
+			if (similarity >= 0.8) {
+				resultBox.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 shadow-md transform transition-all animate-bounce";
+				resultBox.innerHTML = `<p class="text-xl font-black text-emerald-600">🎉 Xuất sắc!</p><p class="text-sm text-slate-600 font-bold mt-1">Bé đã nói: "${transcript}"</p>`;
+				playSoundEffect('correct');
+				addKidAssets(8, 5);
+				updateQuestProgress('speaking_correct');
+				speakingSessionCorrect++;
+				if (item.id !== undefined) recordWordAttempt(item.id, true);
+			} else if (similarity >= 0.4) {
+				resultBox.className = "text-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-md";
+				resultBox.innerHTML = `<p class="text-xl font-black text-amber-600">😊 Khá tốt, cố lên!</p><p class="text-sm text-slate-600 font-bold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-amber-700 mt-1 font-semibold">Nghe mẫu lại và thử nói chuẩn hơn nha!</p>`;
+				playSoundEffect('coin');
+				addKidAssets(3, 2);
+				if (item.id !== undefined) recordWordAttempt(item.id, false);
+			} else {
+				resultBox.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-300 shadow-md";
+				resultBox.innerHTML = `<p class="text-xl font-black text-red-500">🙈 Chưa đúng rồi</p><p class="text-sm text-slate-600 font-bold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-red-600 mt-1 font-semibold">Nghe mẫu lại và thử lại nha!</p>`;
+				playSoundEffect('wrong');
+				if (item.id !== undefined) recordWordAttempt(item.id, false);
+			}
+		}
+
+		function nextSpeakingItem() {
+			speakingIndex++;
+			if (speakingIndex >= speakingPool.length) {
+				finishSpeakingSession();
+			} else {
 				loadSpeakingItem();
 			}
+		}
 
-			function loadSpeakingItem() {
-				stopSpeakingRecognition();
-				const item = speakingPool[speakingIndex];
-				document.getElementById('speaking-progress-text').innerText = `Câu ${speakingIndex + 1} / ${speakingPool.length}`;
-				document.getElementById('speaking-target-text').innerText = item.text;
-				document.getElementById('speaking-target-meaning').innerText = item.meaning;
-
-				const ipaBox = document.getElementById('speaking-target-ipa');
-				const hasIpa = !!(item.ipaUk || item.ipaUs);
-				document.getElementById('speaking-target-ipa-uk').innerText = item.ipaUk ? `UK: ${item.ipaUk}` : '';
-				document.getElementById('speaking-target-ipa-us').innerText = item.ipaUs ? `US: ${item.ipaUs}` : '';
-				ipaBox.style.display = hasIpa ? 'flex' : 'none';
-
-				const resultBox = document.getElementById('speaking-result-box');
-				resultBox.classList.add('hidden');
-				resultBox.innerHTML = '';
-				document.getElementById('speaking-next-btn').classList.add('hidden');
-				document.getElementById('speaking-mic-hint').innerText = 'Bấm vào mic rồi nói to câu trên nha!';
-
-				playSpeakingSample();
-			}
-
-			function playSpeakingSample() {
-				const item = speakingPool[speakingIndex];
-				if (!item) return;
-				speakListWord(item.text, 'us');
-			}
-
-let currentTranscript = '';
-let silenceTimer = null; // Bộ đếm ngắt im lặng chủ động
-
-function toggleSpeakingRecognition() {
-    if (isSpeakingListening) {
-        stopSpeakingRecognition();
-        return;
-    }
-
-    const SR = getSpeechRecognitionClass();
-    if (!SR) return;
-
-    // Hàm xóa timer an toàn
-    const clearSilenceTimer = () => {
-        if (silenceTimer) {
-            clearTimeout(silenceTimer);
-            silenceTimer = null;
-        }
-    };
-
-    speakingRecognizer = new SR();
-    speakingRecognizer.lang = 'en-US';
-    speakingRecognizer.continuous = false;
-    speakingRecognizer.interimResults = true;
-    speakingRecognizer.maxAlternatives = 1;
-
-    speakingRecognizer.onstart = () => {
-        isSpeakingListening = true;
-		hasResultHandled = false; // Reset cờ về false khi bé bấm thu âm lượt mới
-        currentTranscript = '';
-        clearSilenceTimer();
-        document.getElementById('speaking-mic-btn')?.classList.add('mic-listening');
-        document.getElementById('speaking-mic-wrapper')?.classList.add('mic-listening');
-        document.getElementById('speaking-mic-hint').innerText = '🎙️ Đang nghe... Bé nói đi nha!';
-    };
-
-    speakingRecognizer.onresult = (event) => {
-        clearSilenceTimer(); // Có âm thanh mới -> xóa timer cũ
-
-        let transcript = '';
-        let isFinal = false;
-
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-            transcript += event.results[i][0].transcript;
-            if (event.results[i].isFinal) isFinal = true;
-        }
-
-        currentTranscript = transcript.trim();
-        if (!currentTranscript) return;
-
-        // Hiển thị UI ngay lập tức
-        document.getElementById('speaking-mic-hint').innerText = `🗣️ Bé đang nói: "${currentTranscript}"`;
-
-        const item = speakingPool[speakingIndex];
-        const similarity = computeSpeechSimilarity(currentTranscript, item.text);
-
-        // GIẢI PHÁP 1: Nói đúng >= 80% là DỪNG NGAY LẬP TỨC (Độ trễ = 0ms)
-        if (similarity >= 0.8) {
-            stopSpeakingRecognition();
-            handleSpeakingResult(currentTranscript);
-            return;
-        }
-
-        // GIẢI PHÁP 2: Chrome đã tự chốt từ chuẩn
-        if (isFinal) {
-            stopSpeakingRecognition();
-            handleSpeakingResult(currentTranscript);
-            return;
-        }
-
-        // GIẢI PHÁP 3: Bé đọc từ ngắn nhưng chưa đủ 80% (đọc sai)
-        // Đặt timer 800ms, nếu sau 800ms bé dừng nói thì tự ngắt mic luôn, không chờ Chrome ngâm 2-3s
-        silenceTimer = setTimeout(() => {
-            if (isSpeakingListening && currentTranscript) {
-                clearSilenceTimer();
-                stopSpeakingRecognition();
-                handleSpeakingResult(currentTranscript);
-            }
-        }, 800); 
-    };
-
-    speakingRecognizer.onerror = (event) => {
-        clearSilenceTimer();
-        stopSpeakingRecognition();
-        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-            showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha!", "warning");
-        } else if (event.error === 'no-speech') {
-            document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
-        }
-    };
-
-    speakingRecognizer.onend = () => {
-        clearSilenceTimer();
-        if (isSpeakingListening) {
-            stopSpeakingRecognition();
-            if (currentTranscript) {
-                handleSpeakingResult(currentTranscript);
-            } else {
-                document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé bấm mic thử lại nha!';
-            }
-        }
-    };
-
-    try {
-        speakingRecognizer.start();
-    } catch (e) {
-        console.error(e);
-    }
-}
-			function stopSpeakingRecognition() {
-				if (speakingRecognizer) {
-					try { speakingRecognizer.stop(); } catch (e) {}
-				}
-				isSpeakingListening = false;
-				document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
-				document.getElementById('speaking-mic-wrapper')?.classList.remove('mic-listening');
-			}
-
-			function normalizeSpeechText(text) {
-				return text ? text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim() : '';
-			}
-
-			function computeSpeechSimilarity(a, b) {
-				const na = normalizeSpeechText(a);
-				const nb = normalizeSpeechText(b);
-				if (!na || !nb) return 0;
-				if (na === nb) return 1;
-
-				const wordsA = na.split(' ');
-				const wordsB = nb.split(' ');
-				let matches = 0;
-				const bCopy = [...wordsB];
-				wordsA.forEach(w => {
-					const idx = bCopy.indexOf(w);
-					if (idx !== -1) { matches++; bCopy.splice(idx, 1); }
-				});
-				return matches / Math.max(wordsA.length, wordsB.length);
-			}
-			let hasResultHandled = false; // Cờ chặn chạy trùng kết quả
-
-			function handleSpeakingResult(transcript) {
-				// Nếu lượt này đã xử lý kết quả rồi thì bỏ qua, không chạy lại
-				if (hasResultHandled) return; 
-				hasResultHandled = true;
-
-				const item = speakingPool[speakingIndex];
-				const similarity = computeSpeechSimilarity(transcript, item.text);
-
-				// RESET lại dòng chữ bên dưới mic
-				document.getElementById('speaking-mic-hint').innerText = 'Bấm vào mic để thử lại nếu muốn nha!';
-
-				const resultBox = document.getElementById('speaking-result-box');
-				resultBox.classList.remove('hidden');
-				document.getElementById('speaking-next-btn').classList.remove('hidden');
-
-				if (similarity >= 0.8) {
-					resultBox.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200";
-					resultBox.innerHTML = `<p class="text-lg font-black text-emerald-600">🎉 Xuất sắc!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p>`;
-					playSoundEffect('correct');
-					addKidAssets(8, 5);
-					updateQuestProgress('speaking_correct');
-					speakingSessionCorrect++;
-					if (item.id !== undefined) recordWordAttempt(item.id, true);
-				} else if (similarity >= 0.4) {
-					resultBox.className = "text-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-200";
-					resultBox.innerHTML = `<p class="text-lg font-black text-amber-600">😊 Khá tốt, cố lên!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử nói chuẩn hơn nha!</p>`;
-					playSoundEffect('coin');
-					addKidAssets(3, 2);
-					if (item.id !== undefined) recordWordAttempt(item.id, false);
-				} else {
-					resultBox.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-200";
-					resultBox.innerHTML = `<p class="text-lg font-black text-red-500">🙈 Chưa đúng rồi</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử lại nha!</p>`;
-					playSoundEffect('wrong');
-					if (item.id !== undefined) recordWordAttempt(item.id, false);
-				}
-			}
-
-			function nextSpeakingItem() {
-				speakingIndex++;
-				if (speakingIndex >= speakingPool.length) {
-					finishSpeakingSession();
-				} else {
-					loadSpeakingItem();
-				}
-			}
-
-			function finishSpeakingSession() {
-				playSoundEffect('levelup');
-				triggerConfettiFireworks();
-				addKidAssets(10, 5);
-				showModal("HOÀN THÀNH LUYỆN NÓI! 🎤✨", `Bé đã luyện phát âm ${speakingPool.length} câu, trong đó nói xuất sắc ${speakingSessionCorrect} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
-				resetSpeakingTabUI();
-			}
+		function finishSpeakingSession() {
+			playSoundEffect('levelup');
+			triggerConfettiFireworks();
+			addKidAssets(10, 5);
+			showModal("HOÀN THÀNH LUYỆN NÓI! 🎤✨", `Bé đã luyện phát âm ${speakingPool.length} câu, trong đó nói xuất sắc ${speakingSessionCorrect} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
+			resetSpeakingTabUI();
+		}
 
         // Được gọi bởi fbAuth.onAuthStateChanged() sau khi đã đăng nhập VÀ đã có hồ sơ hợp lệ đang chọn
         // ==== GHÉP TỪ (Word Scramble) ====
