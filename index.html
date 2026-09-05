@@ -241,6 +241,121 @@
             color: white;
         }
 
+        /* Bắn Chữ Vũ Trụ */
+        .shooter-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: shooterTwinkle 2s infinite ease-in-out;
+        }
+        @keyframes shooterTwinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        .shooter-word {
+            position: absolute;
+            white-space: nowrap;
+            font-weight: 900;
+            font-size: 14px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            background: rgba(30, 27, 75, 0.65);
+            border: 1px solid rgba(129, 140, 248, 0.45);
+            transform: translateY(-50%);
+        }
+        .shooter-letter-matched { color: #34d399; }
+        .shooter-letter-pending { color: #c7d2fe; }
+        .shooter-exploding {
+            animation: shooterExplode 0.35s ease forwards;
+        }
+        @keyframes shooterExplode {
+            0% { transform: translateY(-50%) scale(1); opacity: 1; }
+            100% { transform: translateY(-50%) scale(2.2); opacity: 0; }
+        }
+        .shooter-meaning-toast {
+            position: absolute;
+            font-size: 11px;
+            font-weight: 900;
+            color: #6ee7b7;
+            background: rgba(6, 78, 59, 0.75);
+            padding: 3px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+            pointer-events: none;
+            animation: shooterToastFloat 0.9s ease forwards;
+        }
+        @keyframes shooterToastFloat {
+            0% { opacity: 0; transform: translateY(0); }
+            15% { opacity: 1; transform: translateY(-4px); }
+            100% { opacity: 0; transform: translateY(-22px); }
+        }
+        .shooter-word-target {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.65);
+        }
+		 /* Khung chứa game */
+		#shooter-game-area {
+			position: relative;
+			height: 420px; /* Độ cao vùng chơi */
+			overflow: hidden;
+			background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+			border-radius: 1.5rem;
+		}
+
+		/* Phi thuyền cố định ở chính giữa bên dưới */
+		#shooter-ship {
+			position: absolute;
+			bottom: 12px;
+			left: 50%;
+			/* Mặc định nằm giữa và không xoay */
+			transform: translateX(-50%) rotate(-45deg);
+			/* Điểm tựa xoay là tâm phi thuyền */
+			transform-origin: center center;
+			/* Xoay mượt mà */
+			transition: transform 0.1s ease-out;
+			z-index: 20;
+			font-size: 2rem;
+			user-select: none;
+		}
+        .shooter-bullet {
+            position: absolute;
+            width: 5px;
+            height: 16px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #ecfeff, #67e8f9 40%, #6366f1);
+            box-shadow: 0 0 10px rgba(103, 232, 249, 0.95), 0 0 4px rgba(255, 255, 255, 0.9);
+            transform: translate(-50%, -100%);
+            pointer-events: none;
+            z-index: 3;
+        }
+        .shooter-impact {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fef9c3 0%, #67e8f9 55%, transparent 80%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 3;
+            animation: shooterImpactPop 0.25s ease forwards;
+        }
+        @keyframes shooterImpactPop {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.4); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.9); }
+        }
+        .shooter-difficulty-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(129, 140, 248, 0.35);
+            color: #c7d2fe;
+        }
+        .shooter-difficulty-btn.active {
+            background: #6366f1;
+            border-color: #4338ca;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 0 #4338ca;
+        }
+
         /* Giao Tiếp - thanh cuộn mảnh cho danh sách hội thoại/câu thường gặp dài */
         .comm-scrollbar::-webkit-scrollbar {
             width: 5px;
@@ -258,116 +373,9 @@
         }
 
         /* Luyện Phát Âm - hiệu ứng mic đang lắng nghe */
-		/* Nút Micro mặc định & Hiệu ứng hover */
-		.mic-btn-wrapper {
-		  position: relative;
-		  display: inline-flex;
-		  align-items: center;
-		  justify-content: center;
-		}
-
-		/* Vòng sóng lan tỏa khi đang nghe (Ripple Effect) */
-		/* Hiệu ứng nút Micro khi đang lắng nghe */
-		.mic-listening {
-		  position: relative;
-		  background: linear-gradient(135deg, #ff3b5c, #ff6b81) !important;
-		  z-index: 1;
-		  animation: micPulseGlow 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-		}
-		/* Các vòng sóng lan tỏa phía sau nút micro */
-		.mic-listening::before,
-		.mic-listening::after {
-		  content: '';
-		  position: absolute;
-		  inset: 0;
-		  border-radius: 50%;
-		  background: rgba(255, 59, 92, 0.35);
-		  z-index: -1;
-		  animation: rippleExpand 2s infinite ease-out;
-		}
-		/* Vòng sóng thứ hai lệch pha để tạo hiệu ứng nối tiếp */
-		.mic-listening::after {
-		  animation-delay: 0.7s;
-		}
-
-		/* Animation mở rộng vòng sóng bên ngoài */
-		@keyframes rippleExpand {
-		  0% {
-			transform: scale(1);
-			opacity: 0.8;
-		  }
-		  100% {
-			transform: scale(1.85);
-			opacity: 0;
-		  }
-		}
-
-		/* Animation phát sáng đa tầng và nhịp đập nhẹ của nút chính */
-		@keyframes micPulseGlow {
-		  0% {
-			box-shadow: 
-			  0 0 0 0px rgba(255, 59, 92, 0.4),
-			  0 0 0 0px rgba(255, 59, 92, 0.2);
-			transform: scale(1);
-		  }
-		  50% {
-			box-shadow: 
-			  0 0 0 14px rgba(255, 59, 92, 0.25),
-			  0 0 0 28px rgba(255, 59, 92, 0.1);
-			transform: scale(1.04);
-		  }
-		  100% {
-			box-shadow: 
-			  0 0 0 24px rgba(255, 59, 92, 0),
-			  0 0 0 42px rgba(255, 59, 92, 0);
-			transform: scale(1);
-		  }
-		}
-
-		/* Thanh sóng âm chuyển động (Sound Wave Bars) */
-		.sound-wave-container {
-		  display: flex;
-		  align-items: center;
-		  justify-content: center;
-		  gap: 4px;
-		  height: 24px;
-		  margin-top: 8px;
-		}
-
-		.sound-wave-bar {
-		  width: 4px;
-		  height: 8px;
-		  background-color: #3b82f6;
-		  border-radius: 99px;
-		  animation: wave 1.2s ease-in-out infinite alternate;
-		}
-
-		.sound-wave-bar:nth-child(1) { animation-delay: 0.0s; }
-		.sound-wave-bar:nth-child(2) { animation-delay: 0.2s; }
-		.sound-wave-bar:nth-child(3) { animation-delay: 0.4s; }
-		.sound-wave-bar:nth-child(4) { animation-delay: 0.1s; }
-		.sound-wave-bar:nth-child(5) { animation-delay: 0.3s; }
-
-		@keyframes wave {
-		  0% { height: 6px; opacity: 0.4; }
-		  100% { height: 24px; opacity: 1; background-color: #ec4899; }
-		}
-
-		/* Bong bóng lời nói hiện ngay khi bé đang phát âm */
-		.speech-bubble {
-		  position: relative;
-		  background: #ffffff;
-		  border: 2px solid #3b82f6;
-		  border-radius: 18px;
-		  padding: 10px 16px;
-		  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
-		  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-		}
-
-		@keyframes popIn {
-		  0% { transform: scale(0.8); opacity: 0; }
-		  100% { transform: scale(1); opacity: 1; }
-		}
+        .mic-listening {
+            animation: micPulse 1s infinite;
+        }
         @keyframes micPulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5); }
             50% { box-shadow: 0 0 0 16px rgba(244, 63, 94, 0); }
@@ -585,6 +593,7 @@
                 <button onclick="switchTab('communication-zone')" id="btn-communication-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-comments text-sm"></i> Giao Tiếp</button>
                 <button onclick="switchTab('speaking-zone')" id="btn-speaking-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-microphone text-sm"></i> Phát Âm</button>
                 <button onclick="switchTab('grammar-zone')" id="btn-grammar-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-book text-sm"></i> Ngữ Pháp</button>
+                <button onclick="switchTab('shooter-zone')" id="btn-shooter-zone" class="tab-btn shrink-0 px-3 py-2 rounded-xl font-bold text-white hover:bg-white/10"><i class="fa-solid fa-rocket text-sm"></i> Bắn Chữ</button>
             </div>
 
         </div>
@@ -1383,28 +1392,12 @@
                         <button onclick="playSpeakingSample()" class="mt-3 text-rose-500 hover:text-rose-600 text-sm font-black"><i class="fa-solid fa-volume-high mr-1"></i> Nghe Mẫu</button>
                     </div>
 
-					<div class="flex flex-col items-center justify-center gap-2">
-						<!-- Nút Micro -->
-					<div class="mic-btn-wrapper overflow-visible">
-						<button onclick="toggleSpeakingRecognition()" id="speaking-mic-btn" class="w-20 h-20 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-3xl shadow-lg transition flex items-center justify-center mx-auto">
-							<i class="fa-solid fa-microphone"></i>
-						</button>
-					</div>
-
-						<!-- Sóng âm động (Hiển thị khi bắt đầu nghe) -->
-						<div id="sound-wave" class="sound-wave-container hidden">
-							<div class="sound-wave-bar"></div>
-							<div class="sound-wave-bar"></div>
-							<div class="sound-wave-bar"></div>
-							<div class="sound-wave-bar"></div>
-							<div class="sound-wave-bar"></div>
-						</div>
-
-						<!-- Dòng gợi ý / Bong bóng thoại -->
-						<div id="speaking-mic-hint" class="text-xs text-slate-400 font-bold transition-all duration-200">
-							Bấm vào mic rồi nói to câu trên nha!
-						</div>
-					</div>
+                    <div class="text-center">
+                        <button onclick="toggleSpeakingRecognition()" id="speaking-mic-btn" class="w-20 h-20 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-3xl shadow-lg transition flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <p id="speaking-mic-hint" class="text-xs text-slate-400 font-bold mt-2">Bấm vào mic rồi nói to câu trên nha!</p>
+                    </div>
 
                     <div id="speaking-result-box" class="hidden text-center p-4 rounded-2xl"></div>
 
@@ -1569,6 +1562,54 @@
                         Câu Tiếp Theo <i class="fa-solid fa-arrow-right ml-1"></i>
                     </button>
                 </div>
+            </div>
+        </section>
+
+        <section id="tab-shooter-zone" class="tab-content hidden max-w-2xl mx-auto space-y-4">
+            <!-- Màn hình khởi đầu Bắn Chữ Vũ Trụ -->
+            <div id="shooter-start-screen" class="bg-gradient-to-b from-indigo-950 to-indigo-900 p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-indigo-400/30 text-center space-y-6">
+                <div class="w-24 h-24 bg-indigo-500/20 text-indigo-100 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
+                    🚀
+                </div>
+                <div>
+                    <h2 class="text-2xl font-light text-white">Bắn Chữ Vũ Trụ</h2>
+                    <p class="text-sm text-indigo-200 mt-1 font-semibold leading-relaxed">Các thiên thạch mang <b>từ Tiếng Anh</b> đang lao xuống phi thuyền của bé! Gõ đúng từ để bắn hạ trước khi nó rơi tới đáy màn hình nhé. Bé có <b>3 mạng</b> ❤️, để thiên thạch rơi hết là mất 1 mạng đó.</p>
+                    <p id="shooter-best-score-text" class="text-xs font-black text-indigo-200 mt-3 bg-indigo-500/20 inline-block px-3 py-1.5 rounded-full">Kỷ lục hiện tại: 0 thiên thạch</p>
+                </div>
+
+                <!-- Chọn độ khó -->
+                <div>
+                    <p class="text-[11px] font-black text-indigo-300 uppercase tracking-wide mb-2">Chọn Tốc Độ Phi Thuyền</p>
+                    <div id="shooter-difficulty-selector" class="flex flex-wrap justify-center gap-2">
+                        <button onclick="setShooterDifficulty('slow')" id="shooter-diff-btn-slow" data-diff="slow" class="shooter-difficulty-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition">🐢 Chậm</button>
+                        <button onclick="setShooterDifficulty('normal')" id="shooter-diff-btn-normal" data-diff="normal" class="shooter-difficulty-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition">🙂 Bình Thường</button>
+                        <button onclick="setShooterDifficulty('fast')" id="shooter-diff-btn-fast" data-diff="fast" class="shooter-difficulty-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition">🚀 Siêu Tốc</button>
+                    </div>
+                </div>
+
+                <button onclick="startShooterGame()" class="bubble-btn bg-indigo-500 hover:bg-indigo-600 text-white font-black py-3.5 px-8 rounded-2xl border-b-4 border-indigo-800 shadow-md transition">
+                    <i class="fa-solid fa-rocket mr-1.5"></i> Phóng Tàu Xuất Kích!
+                </button>
+            </div>
+
+            <!-- Khung chơi chính -->
+            <div id="shooter-play-screen" class="hidden bg-indigo-950 p-4 sm:p-6 rounded-[2.5rem] shadow-sm border-4 border-indigo-400/30 space-y-4">
+                <div class="flex flex-wrap justify-between items-center gap-2 text-xs font-bold border-b border-indigo-400/20 pb-3">
+                    <span id="shooter-score-text" class="text-indigo-100 bg-indigo-500/20 px-3 py-1.5 rounded-full">🌠 Đã bắn: 0</span>
+                    <span id="shooter-lives" class="text-base"></span>
+                    <button onclick="resetShooterTabUI();" class="text-indigo-300 hover:text-white text-sm font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Quay lại</button>
+                </div>
+
+                <div id="shooter-game-area"></div>
+
+                <input type="text" id="shooter-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="checkShooterInput()" placeholder="Gõ từ Tiếng Anh để bắn hạ thiên thạch..." class="w-full px-4 py-3 rounded-2xl border-2 border-indigo-400/40 bg-indigo-900 text-white placeholder-indigo-300 focus:outline-none focus:border-indigo-300 text-center text-lg font-black transition-all">
+            </div>
+
+            <!-- Màn hình cảnh báo khi thiếu từ vựng -->
+            <div id="shooter-empty" class="hidden bg-white p-6 sm:p-8 rounded-[2.5rem] border-4 border-indigo-100 shadow-sm text-center py-12 text-slate-500 space-y-3">
+                <span class="text-5xl block animate-bounce">⚠️</span>
+                <h3 class="font-bold text-slate-700 text-lg">Chưa đủ từ để chơi</h3>
+                <p class="max-w-xs mx-auto text-sm font-semibold">Túi từ vựng cần có ít nhất 5 từ để bắt đầu Bắn Chữ Vũ Trụ nhé bé yêu ơi!</p>
             </div>
         </section>
 
@@ -2325,6 +2366,7 @@
             { id: 'memory_master', icon: '🧠', name: 'Bậc Thầy Ghi Nhớ', desc: 'Hoàn thành 1 lượt Trí Nhớ Ghép Cặp' },
             { id: 'sentence_master', icon: '🧩', name: 'Vua Xếp Câu', desc: 'Hoàn thành 1 bộ Xếp Câu' },
             { id: 'bubble_20', icon: '💧', name: 'Tay Nổ Bong Bóng Cừ', desc: 'Đạt 20 bong bóng trong 1 lượt chơi' },
+            { id: 'shooter_30', icon: '🚀', name: 'Phi Hành Gia Cừ Khôi', desc: 'Bắn hạ 30 thiên thạch trong 1 lượt chơi Bắn Chữ Vũ Trụ' },
             { id: 'coins_500', icon: '💰', name: 'Triệu Phú Nhí', desc: 'Sở hữu cùng lúc 500 Xu Vàng' }
         ];
         let kidBadges = JSON.parse(getPData('kid_badges')) || [];
@@ -2358,6 +2400,7 @@
             { id: 'bubble_correct', label: 'Bong Bóng', icon: '💧', target: 12, reward: { xp: 15, coins: 10 } },
             { id: 'speaking_correct', label: 'Phát Âm', icon: '🎤', target: 8, reward: { xp: 15, coins: 10 } },
             { id: 'scramble_correct', label: 'Ghép Từ', icon: '🔤', target: 10, reward: { xp: 15, coins: 10 } }
+          //  { id: 'shooter_correct', label: 'Bắn Chữ', icon: '🚀', target: 15, reward: { xp: 15, coins: 10 } }
         ];
         const DAILY_CHEST_REWARD = { xp: 30, coins: 50 };
 
@@ -2504,6 +2547,17 @@
         let bubbleGameRunning = false;
         let bubbleSpawnTimer = null;
         let bubbleBestScore = parseInt(getPData('kid_bubble_best')) || 0;
+
+        // ==== BẮN CHỮ VŨ TRỤ (Space Word Shooter) ====
+        let shooterActiveList = [];
+        let shooterNextId = 1;
+        let shooterScore = 0;
+        let shooterLives = 3;
+        let shooterGameRunning = false;
+        let shooterSpawnTimer = null;
+        let shooterLockedId = null; // id thiên thạch đang được nhắm bắn (đã khớp 1 phần chữ cái)
+        let shooterLastTypedLen = 0; // số chữ cái đã gõ đúng của mục tiêu hiện tại, dùng để biết khi nào cần bắn thêm 1 phát đạn mới
+        let shooterBestScore = parseInt(getPData('kid_shooter_best')) || 0;
 
         let spellingSessionWords = [];
         let currentSpellingIndex = 0;
@@ -3228,6 +3282,8 @@
             clearTimeout(memoryAdvanceTimer);
             clearTimeout(bubbleSpawnTimer);
             bubbleGameRunning = false;
+            clearTimeout(shooterSpawnTimer);
+            shooterGameRunning = false;
             stopSpeakingRecognition();
             isAnswerProcessing = false;
             memoryIsChecking = false;
@@ -3272,6 +3328,9 @@
             }
             if (tabId === 'grammar-zone') {
                 initGrammarTab();
+            }
+            if (tabId === 'shooter-zone') {
+                resetShooterTabUI();
             }
         }
 
@@ -3323,6 +3382,8 @@
                 activityLog: JSON.parse(getPData('kid_activity_log')) || {},
                 bubbleBestScore: bubbleBestScore,
                 bubbleDifficulty: bubbleDifficulty,
+                shooterBestScore: shooterBestScore,
+                shooterDifficulty: shooterDifficulty,
                 wordStats: wordStats,
                 grammarTopics: grammarTopics,
                 grammarChoicePairs: grammarChoicePairs,
@@ -3444,6 +3505,8 @@
             dailyQuests = data.dailyQuests || null;
             bubbleBestScore = data.bubbleBestScore || 0;
             bubbleDifficulty = data.bubbleDifficulty || 'normal';
+            shooterBestScore = data.shooterBestScore || 0;
+            shooterDifficulty = data.shooterDifficulty || 'normal';
             wordStats = data.wordStats || {};
             grammarTopics = data.grammarTopics || [];
             grammarChoicePairs = data.grammarChoicePairs || [];
@@ -3466,6 +3529,8 @@
             setPData('kid_activity_log', JSON.stringify(data.activityLog || {}));
             setPData('kid_bubble_best', bubbleBestScore);
             setPData('kid_bubble_difficulty', bubbleDifficulty);
+            setPData('kid_shooter_best', shooterBestScore);
+            setPData('kid_shooter_difficulty', shooterDifficulty);
             setPData('word_stats', JSON.stringify(wordStats));
             setPData('grammar_topics', JSON.stringify(grammarTopics));
             setPData('grammar_choice_pairs', JSON.stringify(grammarChoicePairs));
@@ -4547,13 +4612,23 @@
         }
 
         // ==== BONG BÓNG TỪ VỰNG (Word Bubble Pop) ====
+	//baseFall và minFall (Tính bằng giây): Số giây để từ vựng rơi hết màn hình. Con số càng lớn thì chữ rơi càng chậm (ví dụ ở chế độ slow game Bắn chữ, từ rơi mất 20 giây mới chạm đáy)
+	//nextDelay (Tính bằng miligiây): Thời gian chờ để sinh ra từ tiếp theo. Tăng thông số này giúp bé có thêm thời gian quan sát và không bị dồn dập.
+	//scoreFactor: Giảm xuống 0.04 - 0.06 giúp tốc độ rơi không bị tăng lên quá nhanh khi bé ghi được điểm cao.
+	const BUBBLE_DIFFICULTY_SETTINGS = {
+		slow:   { baseFall: 18, minFall: 12, scoreFactor: 0.04, nextDelay: 2200 },
+		normal: { baseFall: 14, minFall: 9,  scoreFactor: 0.05, nextDelay: 1600 },
+		fast:   { baseFall: 10, minFall: 6,  scoreFactor: 0.06, nextDelay: 1200 }
+	};
+	let bubbleDifficulty = getPData('kid_bubble_difficulty') || 'normal';
 
-        const BUBBLE_DIFFICULTY_SETTINGS = {
-            slow:   { baseFall: 11,  minFall: 8, scoreFactor: 0.08, nextDelay: 1300 },
-            normal: { baseFall: 9,   minFall: 6, scoreFactor: 0.10, nextDelay: 900  },
-            fast:   { baseFall: 6.5, minFall: 4, scoreFactor: 0.12, nextDelay: 650  }
-        };
-        let bubbleDifficulty = getPData('kid_bubble_difficulty') || 'normal';
+	// ==== BẮN CHỮ VŨ TRỤ ====
+	const SHOOTER_DIFFICULTY_SETTINGS = {
+		slow:   { baseFall: 20, minFall: 14, scoreFactor: 0.04, nextDelay: 3000, maxActive: 2 },
+		normal: { baseFall: 15, minFall: 10, scoreFactor: 0.05, nextDelay: 2200, maxActive: 3 },
+		fast:   { baseFall: 11, minFall: 7,  scoreFactor: 0.06, nextDelay: 1500, maxActive: 4 }
+	};
+        let shooterDifficulty = getPData('kid_shooter_difficulty') || 'normal';
 
         // ==== GHÉP TỪ (Word Scramble) ====
         let scrambleSessionWords = [];
@@ -4776,6 +4851,486 @@
                     "success"
                 );
                 resetBubbleTabUI();
+            }, 400);
+        }
+
+        // ==== BẮN CHỮ VŨ TRỤ (Space Word Shooter) ====
+
+        function setShooterDifficulty(level) {
+            shooterDifficulty = level;
+            setPData('kid_shooter_difficulty', level);
+            document.querySelectorAll('.shooter-difficulty-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.diff === level);
+            });
+        }
+
+        function resetShooterTabUI() {
+            shooterGameRunning = false;
+            clearTimeout(shooterSpawnTimer);
+            shooterActiveList.forEach(w => w.el && w.el.remove());
+            shooterActiveList = [];
+            shooterLockedId = null;
+            shooterLastTypedLen = 0;
+            document.querySelectorAll('.shooter-bullet, .shooter-impact').forEach(b => b.remove());
+
+            const bestText = document.getElementById('shooter-best-score-text');
+            if (bestText) bestText.innerText = `Kỷ lục hiện tại: ${shooterBestScore} thiên thạch`;
+
+            setShooterDifficulty(shooterDifficulty);
+
+            document.getElementById('shooter-start-screen').classList.remove('hidden');
+            document.getElementById('shooter-play-screen').classList.add('hidden');
+            document.getElementById('shooter-empty').classList.add('hidden');
+        }
+
+function startShooterGame() {
+    if (vocabulary.length < 5) {
+        document.getElementById('shooter-start-screen').classList.add('hidden');
+        document.getElementById('shooter-play-screen').classList.add('hidden');
+        document.getElementById('shooter-empty').classList.remove('hidden');
+        return;
+    }
+
+    // 1. HỦY TIMER CŨ (Tránh trùng lặp khi restart game)
+    if (typeof shooterSpawnTimer !== 'undefined' && shooterSpawnTimer) {
+        clearTimeout(shooterSpawnTimer);
+        shooterSpawnTimer = null;
+    }
+
+    // 2. RESET DỮ LIỆU
+    document.getElementById('shooter-game-area').innerHTML = '';
+    shooterActiveList = [];
+    shooterScore = 0;
+    shooterLives = 3;
+    shooterLockedId = null;
+    shooterLastTypedLen = 0;
+    shooterGameRunning = true;
+
+    // 4. CẬP NHẬT GIAO DIỆN & NỀN
+    document.getElementById('shooter-score-text').innerText = `🌠 Đã bắn: 0`;
+    renderShooterLives();
+    renderShooterSpaceBackground();
+
+    // 3. TẠO LẠI PHI THUYỀN TRONG KHU VỰC CHƠI (Tránh bị xoá mất do innerHTML = '')
+    renderShooterShip();
+
+
+
+    // Reset góc xoay phi thuyền về thẳng đứng
+    moveShooterShipTo(null);
+
+    // 5. CHUYỂN MÀN HÌNH
+    document.getElementById('shooter-start-screen').classList.add('hidden');
+    document.getElementById('shooter-empty').classList.add('hidden');
+    document.getElementById('shooter-play-screen').classList.remove('hidden');
+
+    // 6. FOCUS INPUT
+    const input = document.getElementById('shooter-input');
+    input.value = '';
+    input.disabled = false;
+    setTimeout(() => input.focus(), 150);
+
+    // 7. BẮT ĐẦU SPAWN TỪ MỚI
+    scheduleNextShooterWord(600);
+}
+
+// --- HÀM BỔ TRỢ: Render lại phi thuyền ---
+function renderShooterShip() {
+    const gameArea = document.getElementById('shooter-game-area');
+    if (!gameArea) return;
+
+    // 1. Xóa TẤT CẢ các phi thuyền cũ đang tồn tại trong khung chơi (tránh chồng lấn)
+    const existingShips = gameArea.querySelectorAll('#shooter-ship, .shooter-ship');
+    existingShips.forEach(ship => ship.remove());
+
+    // 2. Tạo duy nhất 1 phi thuyền mới
+    const ship = document.createElement('div');
+    ship.id = 'shooter-ship';
+    ship.className = 'shooter-ship';
+    
+    // Đặt icon/ảnh phi thuyền của bạn vào đây
+    ship.innerHTML = '🚀'; 
+    // Hoặc nếu bạn dùng thẻ img:
+    // ship.innerHTML = `<img src="link-anh-phi-thuyen.png" class="w-12 h-12 pointer-events-none">`;
+
+    gameArea.appendChild(ship);
+}
+
+// Hàm xoay phi thuyền hướng về phần tử thiên thạch (targetAsteroidEl)
+function rotateShipToTarget(targetAsteroidEl) {
+    const shipEl = document.getElementById('shooter-ship');
+    if (!shipEl) return;
+
+    // Nếu không có mục tiêu, trả phi thuyền về tư thế chĩa thẳng lên (0 độ)
+    if (!targetAsteroidEl) {
+        shipEl.style.transform = 'translateX(-50%) rotate(0deg)';
+        return;
+    }
+
+    // Lấy tọa độ tâm phi thuyền
+    const shipRect = shipEl.getBoundingClientRect();
+    const shipX = shipRect.left + shipRect.width / 2;
+    const shipY = shipRect.top + shipRect.height / 2;
+
+    // Lấy tọa độ tâm thiên thạch đang bắn
+    const targetRect = targetAsteroidEl.getBoundingClientRect();
+    const targetX = targetRect.left + targetRect.width / 2;
+    const targetY = targetRect.top + targetRect.height / 2;
+
+    // Tính khoảng cách dy, dx
+    const dx = targetX - shipX;
+    const dy = targetY - shipY;
+
+    // Tính góc xoay bằng Rada -> Chuyển sang Độ (Degrees)
+    // +90 độ vì icon 🚀 có mũi chĩa lên trên (trục Y hướng lên)
+    const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+
+    // Cập nhật CSS xoay phi thuyền
+    shipEl.style.transform = `translateX(-50%) rotate(${angleDeg}deg)`;
+}
+
+        // Vẽ nền bầu trời sao lấp lánh và phi thuyền neo ở đáy khung chơi
+        function renderShooterSpaceBackground() {
+            const area = document.getElementById('shooter-game-area');
+            if (!area) return;
+            for (let i = 0; i < 25; i++) {
+                const star = document.createElement('div');
+                star.className = 'shooter-star';
+                const size = 1 + Math.random() * 2;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${(Math.random() * 2).toFixed(2)}s`;
+                area.appendChild(star);
+            }
+            const ship = document.createElement('div');
+            ship.id = 'shooter-ship';
+            ship.innerText = '🚀';
+            area.appendChild(ship);
+        }
+
+        function renderShooterLives() {
+            const container = document.getElementById('shooter-lives');
+            if (!container) return;
+            let html = '';
+            for (let i = 0; i < 3; i++) html += i < shooterLives ? '❤️' : '🤍';
+            container.innerHTML = html;
+        }
+
+        function scheduleNextShooterWord(delay) {
+            if (!shooterGameRunning) return;
+            const settings = SHOOTER_DIFFICULTY_SETTINGS[shooterDifficulty] || SHOOTER_DIFFICULTY_SETTINGS.normal;
+            clearTimeout(shooterSpawnTimer);
+            shooterSpawnTimer = setTimeout(() => {
+                if (!shooterGameRunning) return;
+                spawnShooterWord();
+            }, delay ?? settings.nextDelay);
+        }
+
+        // Dựng HTML từng chữ cái của thiên thạch: chữ đã gõ đúng tô xanh, phần còn lại màu tím nhạt
+        function buildShooterLetterHTML(word, matchedLen) {
+            return word.split('').map((ch, idx) =>
+                `<span class="${idx < matchedLen ? 'shooter-letter-matched' : 'shooter-letter-pending'}">${ch}</span>`
+            ).join('');
+        }
+
+ function spawnShooterWord() {
+    if (!shooterGameRunning) return;
+
+    const settings = SHOOTER_DIFFICULTY_SETTINGS[shooterDifficulty] || SHOOTER_DIFFICULTY_SETTINGS.normal;
+    if (shooterActiveList.length >= settings.maxActive) {
+        scheduleNextShooterWord(400); // Đã đủ thiên thạch trên màn hình, thử lại sau một chút
+        return;
+    }
+
+    const area = document.getElementById('shooter-game-area');
+    if (!area || vocabulary.length === 0) return;
+
+    // Ưu tiên từ chưa xuất hiện đồng thời trên màn hình để tránh trùng lặp gây rối cho bé
+    const freshPool = vocabulary.filter(v => !shooterActiveList.some(a => a.wordId === v.id));
+    const word = pickWeightedWord(freshPool.length ? freshPool : vocabulary);
+    if (!word) { scheduleNextShooterWord(400); return; }
+
+    const id = shooterNextId++;
+    const fallDuration = Math.max(settings.minFall, settings.baseFall - shooterScore * settings.scoreFactor).toFixed(2);
+
+    const el = document.createElement('div');
+    el.className = 'shooter-word';
+    el.style.top = '-10%';
+    el.innerHTML = buildShooterLetterHTML(word.english, 0);
+
+    // 1. Chèn phần tử vào DOM trước để trình duyệt đo chiều rộng thực tế
+    area.appendChild(el);
+
+    // 2. Tính toán vị trí left an toàn theo Pixel (chống bị tràn lề)
+    const padding = 16; // Khoảng cách đệm cách 2 mép lề
+    const areaWidth = area.clientWidth;
+    const wordWidth = el.offsetWidth;
+    const maxLeft = Math.max(padding, areaWidth - wordWidth - padding);
+    const randomLeft = padding + Math.random() * (maxLeft - padding);
+
+    el.style.left = `${randomLeft}px`;
+
+    const wordObj = { id, el, target: word.english, wordId: word.id, meaning: word.vietnamese, destroyed: false, firing: false };
+    shooterActiveList.push(wordObj);
+
+    requestAnimationFrame(() => {
+        el.style.transition = `top ${fallDuration}s linear`;
+        el.style.top = '102%';
+    });
+
+    el.addEventListener('transitionend', () => {
+        if (!wordObj.destroyed && !wordObj.firing) missShooterWord(wordObj);
+    });
+
+    scheduleNextShooterWord();
+}
+        // Lấy vị trí thực tế (px) hiện tại của thiên thạch bên trong khung chơi, dùng khi đóng băng để nổ
+        function getShooterElPosition(el, area) {
+            const elRect = el.getBoundingClientRect();
+            const areaRect = area.getBoundingClientRect();
+            return {
+                left: elRect.left - areaRect.left,
+                top: elRect.top - areaRect.top
+            };
+        }
+
+        function checkShooterInput() {
+            const input = document.getElementById('shooter-input');
+            const value = input.value.trim().toLowerCase();
+
+            if (!value) {
+                shooterLockedId = null;
+                shooterLastTypedLen = 0;
+                shooterActiveList.forEach(w => {
+                    w.el.classList.remove('shooter-word-target');
+                    w.el.innerHTML = buildShooterLetterHTML(w.target, 0);
+                });
+                moveShooterShipTo(null);
+                return;
+            }
+
+            const previousLockedId = shooterLockedId;
+
+            // Nếu đang khóa 1 thiên thạch mục tiêu và chữ vừa gõ vẫn còn khớp, giữ nguyên mục tiêu đó
+            // (bỏ qua các thiên thạch đã bị bắn/đang trúng đạn để tránh bắn trùng)
+            let target = shooterActiveList.find(w => w.id === shooterLockedId && !w.firing && w.target.toLowerCase().startsWith(value));
+            if (!target) {
+                target = shooterActiveList.find(w => !w.firing && w.target.toLowerCase().startsWith(value));
+                shooterLockedId = target ? target.id : null;
+                if (shooterLockedId !== previousLockedId) shooterLastTypedLen = 0; // Đổi sang mục tiêu mới thì đếm lại số đạn từ đầu
+            }
+
+            shooterActiveList.forEach(w => {
+                const matchedLen = (w.id === shooterLockedId) ? value.length : 0;
+                w.el.innerHTML = buildShooterLetterHTML(w.target, matchedLen);
+                w.el.classList.toggle('shooter-word-target', matchedLen > 0);
+            });
+
+            if (target) {
+                // Phi thuyền xoay/di chuyển ngang tới đúng hướng của thiên thạch đang gõ
+                moveShooterShipTo(target);
+
+                // Mỗi chữ cái gõ đúng (tiến thêm, không phải xoá lùi) sẽ bắn thêm 1 phát đạn liên tục
+                if (value.length > shooterLastTypedLen) {
+                    fireShooterBullet(target, value.length === target.target.length);
+                }
+                shooterLastTypedLen = value.length;
+            } else {
+                moveShooterShipTo(null);
+                shooterLastTypedLen = 0;
+            }
+
+            if (target && value === target.target.toLowerCase()) {
+                input.value = '';
+                shooterLockedId = null;
+                shooterLastTypedLen = 0;
+				// Thêm dòng này: Trả phi thuyền về hướng thẳng đứng sau khi diệt xong 1 từ
+				setTimeout(() => moveShooterShipTo(null), 100);
+            }
+        }
+
+        // Xoay/di chuyển phi thuyền theo phương ngang tới đúng hướng của thiên thạch đang được nhắm bắn
+function moveShooterShipTo(target) {
+    const ship = document.getElementById('shooter-ship');
+    if (!ship) return;
+
+    // Khi không gõ từ nào -> Quay về hướng thẳng đứng (-45deg)
+    if (!target || !target.el) {
+        ship.style.transform = 'translateX(-50%) rotate(-45deg)';
+        return;
+    }
+
+    const shipRect = ship.getBoundingClientRect();
+    const shipX = shipRect.left + shipRect.width / 2;
+    const shipY = shipRect.top + shipRect.height / 2;
+
+    const targetRect = target.el.getBoundingClientRect();
+    const targetX = targetRect.left + targetRect.width / 2;
+    const targetY = targetRect.top + targetRect.height / 2;
+
+    const dx = targetX - shipX;
+    const dy = targetY - shipY;
+
+    // Thay +90 bằng +45 để bù 45 độ nghiêng của ảnh
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 45;
+
+    ship.style.transform = `translateX(-50%) rotate(${angle.toFixed(2)}deg)`;
+}
+
+        // Bắn 1 viên đạn từ phi thuyền bay lên đúng vị trí thiên thạch hiện tại.
+        // isFinal = true là phát đạn ứng với chữ cái cuối cùng - chỉ khi đạn này "trúng" mới tính điểm và cho nổ.
+        // Các phát đạn giữa chừng (isFinal = false) chỉ tạo hiệu ứng va chạm nhỏ, không tính điểm.
+        function fireShooterBullet(wordObj, isFinal) {
+            if (!shooterGameRunning || wordObj.destroyed) return;
+            if (isFinal) {
+                if (wordObj.firing) return;
+                wordObj.firing = true;
+                wordObj.el.classList.remove('shooter-word-target');
+            }
+
+            const area = document.getElementById('shooter-game-area');
+            const ship = document.getElementById('shooter-ship');
+            if (!area || !ship) { if (isFinal) destroyShooterWord(wordObj); return; }
+
+            const areaRect = area.getBoundingClientRect();
+            const shipRect = ship.getBoundingClientRect();
+            const targetPos = getShooterElPosition(wordObj.el, area);
+
+            const startLeft = (shipRect.left - areaRect.left) + shipRect.width / 2;
+            const startTop = shipRect.top - areaRect.top;
+            const endLeft = targetPos.left + wordObj.el.offsetWidth / 2;
+            const endTop = targetPos.top + wordObj.el.offsetHeight / 2;
+
+            const bullet = document.createElement('div');
+            bullet.className = 'shooter-bullet';
+            bullet.style.left = `${startLeft}px`;
+            bullet.style.top = `${startTop}px`;
+            area.appendChild(bullet);
+
+            const distance = Math.max(40, Math.hypot(endLeft - startLeft, endTop - startTop));
+            const duration = Math.min(0.3, Math.max(0.08, distance / 1000));
+
+            requestAnimationFrame(() => {
+                bullet.style.transition = `top ${duration}s linear, left ${duration}s linear`;
+                bullet.style.left = `${endLeft}px`;
+                bullet.style.top = `${endTop}px`;
+            });
+
+            setTimeout(() => {
+                bullet.remove();
+                if (!shooterGameRunning) return;
+                if (isFinal) {
+                    destroyShooterWord(wordObj);
+                } else if (!wordObj.destroyed) {
+                    // Chỉ là 1 phát trúng giữa chừng - loé lên 1 tia sáng nhỏ rồi thôi, chưa cho nổ
+                    const impact = document.createElement('div');
+                    impact.className = 'shooter-impact';
+                    impact.style.left = `${endLeft}px`;
+                    impact.style.top = `${endTop}px`;
+                    area.appendChild(impact);
+                    setTimeout(() => impact.remove(), 260);
+                }
+            }, duration * 1000);
+        }
+
+        function destroyShooterWord(wordObj) {
+            if (!shooterActiveList.some(w => w.id === wordObj.id)) return; // Đã bị dọn dẹp (game vừa kết thúc trong lúc đạn đang bay)
+            wordObj.destroyed = true;
+            const area = document.getElementById('shooter-game-area');
+            const el = wordObj.el;
+
+            // Đóng băng vị trí hiện tại (thay vì để rơi tiếp) rồi mới cho nổ, hiệu ứng sẽ đẹp và tự nhiên hơn
+            const pos = getShooterElPosition(el, area);
+            el.style.transition = 'none';
+            el.style.left = `${pos.left}px`;
+            el.style.top = `${pos.top}px`;
+            void el.offsetWidth;
+            el.classList.remove('shooter-word-target');
+            el.classList.add('shooter-exploding');
+
+            const toast = document.createElement('div');
+            toast.className = 'shooter-meaning-toast';
+            toast.style.left = `${pos.left}px`;
+            toast.style.top = `${pos.top}px`;
+            toast.innerText = wordObj.meaning;
+            area.appendChild(toast);
+            setTimeout(() => toast.remove(), 900);
+
+            setTimeout(() => el.remove(), 380);
+            shooterActiveList = shooterActiveList.filter(w => w.id !== wordObj.id);
+
+            shooterScore++;
+            const scoreText = document.getElementById('shooter-score-text');
+            if (scoreText) scoreText.innerText = `🌠 Đã bắn: ${shooterScore}`;
+
+            playSoundEffect('correct');
+            addKidAssets(8, 4);
+            // updateQuestProgress('shooter_correct');
+            recordWordAttempt(wordObj.wordId, true);
+        }
+
+        function missShooterWord(wordObj) {
+            wordObj.destroyed = true;
+            wordObj.el.remove();
+            shooterActiveList = shooterActiveList.filter(w => w.id !== wordObj.id);
+            if (shooterLockedId === wordObj.id) {
+                shooterLockedId = null;
+                shooterLastTypedLen = 0;
+                moveShooterShipTo(null);
+            }
+
+            if (!shooterGameRunning) return;
+
+            playSoundEffect('wrong');
+            recordWordAttempt(wordObj.wordId, false);
+            shooterLives--;
+            renderShooterLives();
+
+            const area = document.getElementById('shooter-game-area');
+            if (area) {
+                area.classList.add('animate-shake');
+                setTimeout(() => area.classList.remove('animate-shake'), 400);
+            }
+
+            // Xóa sạch chữ bé đang gõ dở để bé dễ nhắm thiên thạch tiếp theo hơn
+            const input = document.getElementById('shooter-input');
+            if (input) input.value = '';
+
+            if (shooterLives <= 0) {
+                endShooterGame();
+            }
+        }
+
+        function endShooterGame() {
+            shooterGameRunning = false;
+            clearTimeout(shooterSpawnTimer);
+            document.getElementById('shooter-input').disabled = true;
+
+            shooterActiveList.forEach(w => w.el && w.el.remove());
+            shooterActiveList = [];
+            shooterLockedId = null;
+
+            const isNewRecord = shooterScore > shooterBestScore;
+            if (isNewRecord) {
+                shooterBestScore = shooterScore;
+                setPData('kid_shooter_best', shooterBestScore);
+            }
+
+            playSoundEffect(isNewRecord ? 'levelup' : 'timeout');
+            if (isNewRecord) triggerConfettiFireworks();
+            if (shooterScore >= 30) awardBadge('shooter_30');
+
+            setTimeout(() => {
+                showModal(
+                    isNewRecord ? "KỶ LỤC MỚI! 🏆🚀" : "TÀU ĐÃ HẾT NĂNG LƯỢNG! 🚀",
+                    isNewRecord
+                        ? `Bé đã bắn hạ chính xác ${shooterScore} thiên thạch - đây là kỷ lục mới của bé đó, cừ quá!`
+                        : `Bé đã bắn hạ chính xác ${shooterScore} thiên thạch trong lượt này! Kỷ lục hiện tại: ${shooterBestScore} thiên thạch. Chơi lại để phá kỷ lục nha!`,
+                    "success"
+                );
+                resetShooterTabUI();
             }, 400);
         }
 
@@ -5515,194 +6070,159 @@
             speakListWord(item.text, 'us');
         }
 
-		function toggleSpeakingRecognition() {
-			if (isSpeakingListening) {
-				stopSpeakingRecognition();
-				return;
-			}
+        function toggleSpeakingRecognition() {
+            if (isSpeakingListening) {
+                stopSpeakingRecognition();
+                return;
+            }
 
-			const SR = getSpeechRecognitionClass();
-			if (!SR) return;
+            const SR = getSpeechRecognitionClass();
+            if (!SR) return;
 
-			speakingRecognizer = new SR();
-			speakingRecognizer.lang = 'en-US';
-			speakingRecognizer.continuous = false;
-			speakingRecognizer.interimResults = true; 
-			speakingRecognizer.maxAlternatives = 1;
+            speakingRecognizer = new SR();
+            speakingRecognizer.lang = 'en-US';
+            speakingRecognizer.continuous = false;
+            speakingRecognizer.interimResults = true; // Hiện kết quả tạm ngay khi bé đang nói, giảm cảm giác bị delay/treo
+            speakingRecognizer.maxAlternatives = 1;
 
-			let latestTranscript = '';
-			let hasFinalResult = false;
-			speakingStopIsManual = false;
+            let latestTranscript = '';
+            let hasFinalResult = false;
+            speakingStopIsManual = false;
 
-			speakingRecognizer.onstart = () => {
-				isSpeakingListening = true;
-				
-				// --- Cập nhật UI sinh động khi bắt đầu nghe ---
-				const micBtn = document.getElementById('speaking-mic-btn');
-				const hintEl = document.getElementById('speaking-mic-hint');
-				const waveEl = document.getElementById('sound-wave');
+            speakingRecognizer.onstart = () => {
+                isSpeakingListening = true;
+                document.getElementById('speaking-mic-btn').classList.add('mic-listening');
+                document.getElementById('speaking-mic-hint').innerText = '🎙️ Đang nghe... Bé nói to lên nha!';
 
-				micBtn?.classList.add('mic-listening');
-				waveEl?.classList.remove('hidden'); // Hiện sóng âm nhảy múa
-				
-				hintEl.className = "speech-bubble text-blue-600 font-bold text-center";
-				hintEl.innerHTML = `🎙️ <span class="animate-pulse">Đang nghe... Bé nói to lên nha!</span>`;
+                // Tự động dừng nghe sau 4 giây thay vì chờ trình duyệt tự phát hiện im lặng (thường chậm hơn nhiều)
+                speakingAutoStopTimer = setTimeout(() => {
+                    if (isSpeakingListening && speakingRecognizer) {
+                        try { speakingRecognizer.stop(); } catch (e) {}
+                    }
+                }, 4000);
+            };
 
-				// Tự động dừng nghe sau 4 giây
-				speakingAutoStopTimer = setTimeout(() => {
-					if (isSpeakingListening && speakingRecognizer) {
-						try { speakingRecognizer.stop(); } catch (e) {}
-					}
-				}, 4000);
-			};
+            speakingRecognizer.onresult = (event) => {
+                const result = event.results[0];
+                latestTranscript = result[0].transcript;
 
-			speakingRecognizer.onresult = (event) => {
-				const result = event.results[0];
-				latestTranscript = result[0].transcript;
-				const hintEl = document.getElementById('speaking-mic-hint');
+                if (result.isFinal) {
+                    hasFinalResult = true;
+                    clearTimeout(speakingAutoStopTimer);
+                    handleSpeakingResult(latestTranscript);
+                } else {
+                    // Hiện ngay chữ bé đang nói (kết quả tạm), tạo cảm giác phản hồi tức thì thay vì im lặng chờ
+                    document.getElementById('speaking-mic-hint').innerText = `🎙️ Đang nghe: "${latestTranscript}"...`;
+                }
+            };
 
-				if (result.isFinal) {
-					hasFinalResult = true;
-					clearTimeout(speakingAutoStopTimer);
-					handleSpeakingResult(latestTranscript);
-				} else {
-					// Bong bóng lời nói hiển thị chữ chạy thời gian thực (real-time typing effect UI)
-					hintEl.className = "speech-bubble text-indigo-600 font-extrabold text-center border-indigo-400";
-					hintEl.innerHTML = `💬 Bé đang nói: <span class="text-pink-500">"${latestTranscript}"</span>...`;
-				}
-			};
+            speakingRecognizer.onerror = (event) => {
+                clearTimeout(speakingAutoStopTimer);
+                stopSpeakingRecognition();
+                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                    showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha! Hãy bấm cho phép rồi thử lại.", "warning");
+                } else if (event.error === 'no-speech') {
+                    document.getElementById('speaking-mic-hint').innerText = 'Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
+                }
+            };
 
-			speakingRecognizer.onerror = (event) => {
-				clearTimeout(speakingAutoStopTimer);
-				stopSpeakingRecognition();
-				
-				const hintEl = document.getElementById('speaking-mic-hint');
-				
-				if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-					showModal("Chưa cho phép Micro 🎙️", "Bé cần cho phép trình duyệt sử dụng Micro thì mới luyện nói được nha! Hãy bấm cho phép rồi thử lại.", "warning");
-					if (hintEl) hintEl.innerText = "Chưa mở quyền Micro!";
-				} else if (event.error === 'no-speech') {
-					if (hintEl) {
-						hintEl.className = "text-sm font-bold text-amber-500 text-center";
-						hintEl.innerText = '🤫 Chưa nghe thấy gì cả, bé thử nói to hơn nha!';
-					}
-				}
-			};
+            speakingRecognizer.onend = () => {
+                clearTimeout(speakingAutoStopTimer);
+                isSpeakingListening = false;
+                document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
 
-			speakingRecognizer.onend = () => {
-				clearTimeout(speakingAutoStopTimer);
-				isSpeakingListening = false;
-				
-				// --- Trả giao diện về trạng thái dừng ---
-				document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
-				document.getElementById('sound-wave')?.classList.add('hidden'); // Ẩn sóng âm
+                // Nếu bị dừng (do hết 4s chờ) mà chưa kịp có kết quả cuối cùng chính thức, vẫn chấm theo kết quả tạm gần nhất
+                // để bé không mất công vừa nói - trừ khi đây là do bé/hệ thống chủ động hủy (không tính điểm)
+                if (!hasFinalResult && !speakingStopIsManual && latestTranscript) {
+                    handleSpeakingResult(latestTranscript);
+                }
+            };
 
-				if (!hasFinalResult && !speakingStopIsManual && latestTranscript) {
-					handleSpeakingResult(latestTranscript);
-				}
-			};
+            try {
+                speakingRecognizer.start();
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
-			try {
-				speakingRecognizer.start();
-			} catch (e) {
-				console.error(e);
-			}
-		}
+        function stopSpeakingRecognition() {
+            speakingStopIsManual = true;
+            clearTimeout(speakingAutoStopTimer);
+            if (speakingRecognizer) {
+                try { speakingRecognizer.stop(); } catch (e) {}
+            }
+            isSpeakingListening = false;
+            document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
+        }
 
-		function stopSpeakingRecognition() {
-			speakingStopIsManual = true;
-			clearTimeout(speakingAutoStopTimer);
-			if (speakingRecognizer) {
-				try { speakingRecognizer.stop(); } catch (e) {}
-			}
-			isSpeakingListening = false;
+        // So khớp câu bé nói với câu mẫu theo tỉ lệ từ trùng khớp (không phân biệt hoa/thường, dấu câu)
+        function normalizeSpeechText(text) {
+            return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+        }
 
-			// Trả UI về mặc định khi bấm dừng thủ công
-			document.getElementById('speaking-mic-btn')?.classList.remove('mic-listening');
-			document.getElementById('sound-wave')?.classList.add('hidden');
-			
-			const hintEl = document.getElementById('speaking-mic-hint');
-			if (hintEl) {
-				hintEl.className = "text-sm font-bold text-slate-600 text-center";
-				hintEl.innerText = "Bấm nút Micro để tiếp tục luyện nói!";
-			}
-		}
+        function computeSpeechSimilarity(a, b) {
+            const na = normalizeSpeechText(a);
+            const nb = normalizeSpeechText(b);
+            if (!na || !nb) return 0;
+            if (na === nb) return 1;
 
-		function normalizeSpeechText(text) {
-			return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
-		}
+            const wordsA = na.split(' ');
+            const wordsB = nb.split(' ');
+            let matches = 0;
+            const bCopy = [...wordsB];
+            wordsA.forEach(w => {
+                const idx = bCopy.indexOf(w);
+                if (idx !== -1) { matches++; bCopy.splice(idx, 1); }
+            });
+            return matches / Math.max(wordsA.length, wordsB.length);
+        }
 
-		function computeSpeechSimilarity(a, b) {
-			const na = normalizeSpeechText(a);
-			const nb = normalizeSpeechText(b);
-			if (!na || !nb) return 0;
-			if (na === nb) return 1;
+        function handleSpeakingResult(transcript) {
+            const item = speakingPool[speakingIndex];
+            const similarity = computeSpeechSimilarity(transcript, item.text);
 
-			const wordsA = na.split(' ');
-			const wordsB = nb.split(' ');
-			let matches = 0;
-			const bCopy = [...wordsB];
-			wordsA.forEach(w => {
-				const idx = bCopy.indexOf(w);
-				if (idx !== -1) { matches++; bCopy.splice(idx, 1); }
-			});
-			return matches / Math.max(wordsA.length, wordsB.length);
-		}
+            const resultBox = document.getElementById('speaking-result-box');
+            resultBox.classList.remove('hidden');
+            document.getElementById('speaking-next-btn').classList.remove('hidden');
 
-		function handleSpeakingResult(transcript) {
-			const item = speakingPool[speakingIndex];
-			const similarity = computeSpeechSimilarity(transcript, item.text);
+            if (similarity >= 0.8) {
+                resultBox.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200";
+                resultBox.innerHTML = `<p class="text-lg font-black text-emerald-600">🎉 Xuất sắc!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p>`;
+                playSoundEffect('correct');
+                addKidAssets(8, 5);
+                updateQuestProgress('speaking_correct');
+                speakingSessionCorrect++;
+                if (item.id !== undefined) recordWordAttempt(item.id, true);
+            } else if (similarity >= 0.4) {
+                resultBox.className = "text-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-200";
+                resultBox.innerHTML = `<p class="text-lg font-black text-amber-600">😊 Khá tốt, cố lên!</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử nói chuẩn hơn nha!</p>`;
+                playSoundEffect('coin');
+                addKidAssets(3, 2);
+                if (item.id !== undefined) recordWordAttempt(item.id, false);
+            } else {
+                resultBox.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-200";
+                resultBox.innerHTML = `<p class="text-lg font-black text-red-500">🙈 Chưa đúng rồi</p><p class="text-xs text-slate-500 font-semibold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-slate-400 mt-1">Nghe mẫu lại và thử lại nha!</p>`;
+                playSoundEffect('wrong');
+                if (item.id !== undefined) recordWordAttempt(item.id, false);
+            }
+        }
 
-			const resultBox = document.getElementById('speaking-result-box');
-			const hintEl = document.getElementById('speaking-mic-hint');
-			
-			// Ẩn bong bóng tạm thời khi đã có kết quả chính thức
-			if (hintEl) {
-				hintEl.className = "text-sm font-bold text-slate-500 text-center";
-				hintEl.innerText = "Bấm nút Micro để nói lại lần nữa";
-			}
+        function nextSpeakingItem() {
+            speakingIndex++;
+            if (speakingIndex >= speakingPool.length) {
+                finishSpeakingSession();
+            } else {
+                loadSpeakingItem();
+            }
+        }
 
-			resultBox.classList.remove('hidden');
-			document.getElementById('speaking-next-btn')?.classList.remove('hidden');
-
-			if (similarity >= 0.8) {
-				resultBox.className = "text-center p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 shadow-md transform transition-all animate-bounce";
-				resultBox.innerHTML = `<p class="text-xl font-black text-emerald-600">🎉 Xuất sắc!</p><p class="text-sm text-slate-600 font-bold mt-1">Bé đã nói: "${transcript}"</p>`;
-				playSoundEffect('correct');
-				addKidAssets(8, 5);
-				updateQuestProgress('speaking_correct');
-				speakingSessionCorrect++;
-				if (item.id !== undefined) recordWordAttempt(item.id, true);
-			} else if (similarity >= 0.4) {
-				resultBox.className = "text-center p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-md";
-				resultBox.innerHTML = `<p class="text-xl font-black text-amber-600">😊 Khá tốt, cố lên!</p><p class="text-sm text-slate-600 font-bold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-amber-700 mt-1 font-semibold">Nghe mẫu lại và thử nói chuẩn hơn nha!</p>`;
-				playSoundEffect('coin');
-				addKidAssets(3, 2);
-				if (item.id !== undefined) recordWordAttempt(item.id, false);
-			} else {
-				resultBox.className = "text-center p-4 rounded-2xl bg-red-50 border-2 border-red-300 shadow-md";
-				resultBox.innerHTML = `<p class="text-xl font-black text-red-500">🙈 Chưa đúng rồi</p><p class="text-sm text-slate-600 font-bold mt-1">Bé đã nói: "${transcript}"</p><p class="text-xs text-red-600 mt-1 font-semibold">Nghe mẫu lại và thử lại nha!</p>`;
-				playSoundEffect('wrong');
-				if (item.id !== undefined) recordWordAttempt(item.id, false);
-			}
-		}
-
-		function nextSpeakingItem() {
-			speakingIndex++;
-			if (speakingIndex >= speakingPool.length) {
-				finishSpeakingSession();
-			} else {
-				loadSpeakingItem();
-			}
-		}
-
-		function finishSpeakingSession() {
-			playSoundEffect('levelup');
-			triggerConfettiFireworks();
-			addKidAssets(10, 5);
-			showModal("HOÀN THÀNH LUYỆN NÓI! 🎤✨", `Bé đã luyện phát âm ${speakingPool.length} câu, trong đó nói xuất sắc ${speakingSessionCorrect} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
-			resetSpeakingTabUI();
-		}
+        function finishSpeakingSession() {
+            playSoundEffect('levelup');
+            triggerConfettiFireworks();
+            addKidAssets(10, 5); // Thưởng hoàn thành trọn bộ
+            showModal("HOÀN THÀNH LUYỆN NÓI! 🎤✨", `Bé đã luyện phát âm ${speakingPool.length} câu, trong đó nói xuất sắc ${speakingSessionCorrect} câu! Nhận thêm +10 XP ⭐ +5 Xu 💰 phần thưởng hoàn thành!`, "success");
+            resetSpeakingTabUI();
+        }
 
         // Được gọi bởi fbAuth.onAuthStateChanged() sau khi đã đăng nhập VÀ đã có hồ sơ hợp lệ đang chọn
         // ==== GHÉP TỪ (Word Scramble) ====
