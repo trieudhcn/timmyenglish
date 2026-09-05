@@ -293,34 +293,28 @@
             border-color: #34d399 !important;
             box-shadow: 0 0 12px rgba(52, 211, 153, 0.65);
         }
-		 /* Khung chứa game */
-		#shooter-game-area {
-			position: relative;
-			height: 420px; /* Độ cao vùng chơi */
-			overflow: hidden;
-			background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
-			border-radius: 1.5rem;
-		}
-
-		/* Phi thuyền cố định ở chính giữa bên dưới */
-		#shooter-ship {
-			position: absolute;
-			bottom: 12px;
-			left: 50%;
-			/* Mặc định nằm giữa và không xoay */
-			transform: translateX(-50%) rotate(-45deg);
-			/* Điểm tựa xoay là tâm phi thuyền */
-			transform-origin: center center;
-			/* Xoay mượt mà */
-			transition: transform 0.1s ease-out;
-			z-index: 20;
-			font-size: 2rem;
-			user-select: none;
-		}
+        #shooter-game-area {
+            position: relative;
+            height: 380px;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            background: radial-gradient(ellipse at 50% 100%, #1e1b4b 0%, #0f0c29 70%, #000000 100%);
+        }
+        #shooter-ship {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: block;
+            filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.8));
+            z-index: 2;
+            transition: transform 0.15s ease-out;
+            transform-origin: 50% 50%;
+        }
         .shooter-bullet {
             position: absolute;
-            width: 5px;
-            height: 16px;
+            width: 3px;
+            height: 12px;
             border-radius: 3px;
             background: linear-gradient(180deg, #ecfeff, #67e8f9 40%, #6366f1);
             box-shadow: 0 0 10px rgba(103, 232, 249, 0.95), 0 0 4px rgba(255, 255, 255, 0.9);
@@ -837,19 +831,19 @@
 
         <section id="tab-practice-zone" class="tab-content hidden max-w-2xl mx-auto space-y-4">
             <div class="flex flex-wrap justify-center gap-2">
-                <button onclick="switchPracticeSubTab('memory')" id="practice-subtab-btn-memory" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-brain mr-1"></i> Trí Nhớ</button>
-                <button onclick="switchPracticeSubTab('spelling')" id="practice-subtab-btn-spelling" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-pencil-alt mr-1"></i> Điền Chữ</button>
-                <button onclick="switchPracticeSubTab('test')" id="practice-subtab-btn-test" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-trophy mr-1"></i> Trắc Nghiệm</button>
-                <button onclick="switchPracticeSubTab('game')" id="practice-subtab-btn-game" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-puzzle-piece mr-1"></i> Xếp Câu</button>
-                <button onclick="switchPracticeSubTab('bubble')" id="practice-subtab-btn-bubble" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-tint mr-1"></i> Bong Bóng</button>
-                <button onclick="switchPracticeSubTab('scramble')" id="practice-subtab-btn-scramble" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-shuffle mr-1"></i> Ghép Từ</button>
+                <button onclick="switchPracticeSubTab('memory')" id="practice-subtab-btn-memory" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-brain text-blue-500 mr-1"></i> Trí Nhớ</button>
+                <button onclick="switchPracticeSubTab('spelling')" id="practice-subtab-btn-spelling" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-pen-to-square text-blue-500 mr-1"></i> Điền Chữ</button>
+                <button onclick="switchPracticeSubTab('test')" id="practice-subtab-btn-test" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-trophy text-blue-500 mr-1"></i> Trắc Nghiệm</button>
+                <button onclick="switchPracticeSubTab('game')" id="practice-subtab-btn-game" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-puzzle-piece text-blue-500 mr-1"></i> Xếp Câu</button>
+                <button onclick="switchPracticeSubTab('bubble')" id="practice-subtab-btn-bubble" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-droplet text-blue-500 mr-1"></i> Bong Bóng</button>
+                <button onclick="switchPracticeSubTab('scramble')" id="practice-subtab-btn-scramble" class="practice-subtab-btn px-4 py-2 rounded-2xl text-sm font-black border-2 transition"><i class="fa-solid fa-arrow-down-a-z text-blue-500 mr-1"></i> Ghép Từ</button>
             </div>
 
         <div id="practice-panel-memory" class="hidden space-y-4">
             <!-- Màn hình chào mừng Trí Nhớ Ghép Cặp -->
             <div id="memory-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-indigo-100 text-center space-y-6">
                 <div class="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
-                    🧠
+                    <i class="fa-solid fa-brain mr-1"></i>
                 </div>
                 <div>
                     <h2 class="text-2xl font-light text-slate-800">Trí Nhớ Ghép Cặp</h2>
@@ -885,7 +879,7 @@
             <!-- Màn hình khởi đầu ôn tập -->
             <div id="spelling-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-emerald-100 text-center space-y-6">
                 <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
-                    📝
+                    <i class="fa-solid fa-pen-to-square text-blue-500 mr-1"></i>
                 </div>
                 <div>
                     <h2 class="text-2xl font-light text-slate-800">Luyện Viết Chính Tả</h2>
@@ -968,7 +962,7 @@
         <div id="practice-panel-test" class="hidden max-w-xl mx-auto space-y-4">
             <div id="test-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-sky-100 text-center space-y-6">
                 <div class="w-24 h-24 bg-sky-100 text-sky-600 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
-                    ⚔️
+                    <i class="fa-solid fa-trophy text-blue-500 mr-1"></i>
                 </div>
                 <div>
                     <h2 class="text-2xl font-light text-slate-800 font-kids">Thử Thách 10 Câu Hỏi</h2>
@@ -1023,7 +1017,7 @@
             <!-- Màn hình chào mừng Game -->
             <div id="game-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-pink-100 text-center space-y-6">
                 <div class="w-24 h-24 bg-pink-100 text-pink-600 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
-                    🧩
+                    <i class="fa-solid fa-puzzle-piece text-blue-500 mr-1"></i>
                 </div>
                 <div>
                     <h2 class="text-2xl font-light text-slate-800">Xếp Câu Hoạt Hình</h2>
@@ -1108,7 +1102,7 @@
             <!-- Khung chơi chính -->
             <div id="bubble-play-screen" class="hidden bg-white p-4 sm:p-6 rounded-[2.5rem] shadow-sm border-4 border-sky-100 space-y-4">
                 <div class="flex flex-wrap justify-between items-center gap-2 text-xs font-bold text-slate-500 border-b pb-3">
-                    <span id="bubble-score-text" class="text-sky-600 bg-sky-50 px-3 py-1.5 rounded-full">💧 Đã nổ: 0</span>
+                    <span id="bubble-score-text" class="text-sky-600 bg-sky-50 px-3 py-1.5 rounded-full"><i class="fa-solid fa-droplet mr-1.5"></i> Đã nổ: 0</span>
                     <span id="bubble-lives" class="text-base"></span>
                     <button onclick="resetBubbleTabUI();" class="text-slate-400 hover:text-slate-600 text-sm font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Quay lại</button>
                 </div>
@@ -1130,7 +1124,7 @@
             <!-- Màn hình chào mừng Ghép Từ -->
             <div id="scramble-start-screen" class="bg-white p-6 sm:p-8 rounded-[2.5rem] shadow-sm border-4 border-teal-100 text-center space-y-6">
                 <div class="w-24 h-24 bg-teal-100 text-teal-600 rounded-3xl flex items-center justify-center text-5xl mx-auto shadow-inner animate-float">
-                    🔤
+                    <i class="fa-solid fa-arrow-down-a-z text-blue-500 mr-1"></i>
                 </div>
                 <div>
                     <h2 class="text-2xl font-light text-slate-800">Ghép Từ</h2>
@@ -2392,15 +2386,15 @@
         let pendingDeleteAction = null;
 
         // ==== NHIỆM VỤ HÀNG NGÀY (Daily Quests) ====
-        const DAILY_QUEST_TEMPLATE = [
-            { id: 'test_correct', label: 'Trắc Nghiệm', icon: '🏆', target: 10, reward: { xp: 20, coins: 15 } },
-            { id: 'spelling_correct', label: 'Điền Chữ', icon: '✏️', target: 6, reward: { xp: 15, coins: 10 } },
-            { id: 'sentence_correct', label: 'Xếp Câu', icon: '🧩', target: 4, reward: { xp: 15, coins: 10 } },
-            { id: 'memory_correct', label: 'Trí Nhớ', icon: '🧠', target: 8, reward: { xp: 15, coins: 10 } },
-            { id: 'bubble_correct', label: 'Bong Bóng', icon: '💧', target: 12, reward: { xp: 15, coins: 10 } },
-            { id: 'speaking_correct', label: 'Phát Âm', icon: '🎤', target: 8, reward: { xp: 15, coins: 10 } },
-            { id: 'scramble_correct', label: 'Ghép Từ', icon: '🔤', target: 10, reward: { xp: 15, coins: 10 } }
-        ];
+		const DAILY_QUEST_TEMPLATE = [
+			{ id: 'test_correct', label: 'Trắc Nghiệm', icon: 'fa-solid fa-trophy text-amber-500', target: 10, reward: { xp: 20, coins: 15 } },
+			{ id: 'spelling_correct', label: 'Điền Chữ', icon: 'fa-solid fa-pen-to-square text-blue-500', target: 6, reward: { xp: 15, coins: 10 } },
+			{ id: 'sentence_correct', label: 'Xếp Câu', icon: 'fa-solid fa-puzzle-piece text-purple-500', target: 4, reward: { xp: 15, coins: 10 } },
+			{ id: 'memory_correct', label: 'Trí Nhớ', icon: 'fa-solid fa-brain text-pink-500', target: 8, reward: { xp: 15, coins: 10 } },
+			{ id: 'bubble_correct', label: 'Bong Bóng', icon: 'fa-solid fa-droplet text-sky-500', target: 12, reward: { xp: 15, coins: 10 } },
+			{ id: 'speaking_correct', label: 'Phát Âm', icon: 'fa-solid fa-microphone text-rose-500', target: 8, reward: { xp: 15, coins: 10 } },
+			{ id: 'scramble_correct', label: 'Ghép Từ', icon: 'fa-solid fa-arrow-down-a-z text-emerald-500', target: 10, reward: { xp: 15, coins: 10 } }
+		];
         const DAILY_CHEST_REWARD = { xp: 30, coins: 50 };
 
         function getLocalTodayKey() {
@@ -2409,29 +2403,30 @@
         }
 
         let dailyQuests = JSON.parse(getPData('daily_quests')) || null;
-function ensureDailyQuestsHealed() {
-    const todayKey = getLocalTodayKey();
-    if (!dailyQuests || dailyQuests.date !== todayKey) {
-        dailyQuests = {
-            date: todayKey,
-            chestClaimed: false,
-            quests: DAILY_QUEST_TEMPLATE.map(q => ({ id: q.id, progress: 0, done: false, rewardGiven: false }))
-        };
-    } else {
-        // 1. LỌC BỎ các nhiệm vụ cũ không còn tồn tại trong DAILY_QUEST_TEMPLATE
-        const validIds = new Set(DAILY_QUEST_TEMPLATE.map(t => t.id));
-        dailyQuests.quests = dailyQuests.quests.filter(q => validIds.has(q.id));
+		
+		function ensureDailyQuestsHealed() {
+			const todayKey = getLocalTodayKey();
+			if (!dailyQuests || dailyQuests.date !== todayKey) {
+				dailyQuests = {
+					date: todayKey,
+					chestClaimed: false,
+					quests: DAILY_QUEST_TEMPLATE.map(q => ({ id: q.id, progress: 0, done: false, rewardGiven: false }))
+				};
+			} else {
+				// 1. LỌC BỎ các nhiệm vụ cũ không còn tồn tại trong DAILY_QUEST_TEMPLATE
+				const validIds = new Set(DAILY_QUEST_TEMPLATE.map(t => t.id));
+				dailyQuests.quests = dailyQuests.quests.filter(q => validIds.has(q.id));
 
-        // 2. Bổ sung nhiệm vụ mới nếu template có thêm quest
-        DAILY_QUEST_TEMPLATE.forEach(t => {
-            if (!dailyQuests.quests.some(q => q.id === t.id)) {
-                dailyQuests.quests.push({ id: t.id, progress: 0, done: false, rewardGiven: false });
-                dailyQuests.chestClaimed = false; // Mở lại rương vì vừa có nhiệm vụ mới
-            }
-        });
-    }
-    setPData('daily_quests', JSON.stringify(dailyQuests));
-}
+				// 2. Bổ sung nhiệm vụ mới nếu template có thêm quest
+				DAILY_QUEST_TEMPLATE.forEach(t => {
+					if (!dailyQuests.quests.some(q => q.id === t.id)) {
+						dailyQuests.quests.push({ id: t.id, progress: 0, done: false, rewardGiven: false });
+						dailyQuests.chestClaimed = false; // Mở lại rương vì vừa có nhiệm vụ mới
+					}
+				});
+			}
+			setPData('daily_quests', JSON.stringify(dailyQuests));
+		}
 
         (function initDailyQuestsIfNeeded() {
             ensureDailyQuestsHealed();
@@ -2854,7 +2849,7 @@ function ensureDailyQuestsHealed() {
 				const row = document.createElement('div');
 				row.className = `p-2.5 rounded-2xl border-2 ${q.done ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100'} flex flex-col items-center text-center gap-1`;
 				row.innerHTML = `
-					<span class="text-lg">${template.icon}</span>
+				<i class="${template.icon} text-lg mb-0.5"></i>
 					<span class="text-[10px] sm:text-[11px] font-black leading-tight ${q.done ? 'text-emerald-600' : 'text-slate-600'}">${template.label}</span>
 					<span class="text-[9px] font-bold ${q.done ? 'text-emerald-500' : 'text-slate-400'}">${q.progress}/${template.target} ${q.done ? '✅' : ''}</span>
 					<div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
@@ -4623,22 +4618,22 @@ function ensureDailyQuestsHealed() {
         }
 
         // ==== BONG BÓNG TỪ VỰNG (Word Bubble Pop) ====
-	//baseFall và minFall (Tính bằng giây): Số giây để từ vựng rơi hết màn hình. Con số càng lớn thì chữ rơi càng chậm (ví dụ ở chế độ slow game Bắn chữ, từ rơi mất 20 giây mới chạm đáy)
-	//nextDelay (Tính bằng miligiây): Thời gian chờ để sinh ra từ tiếp theo. Tăng thông số này giúp bé có thêm thời gian quan sát và không bị dồn dập.
-	//scoreFactor: Giảm xuống 0.04 - 0.06 giúp tốc độ rơi không bị tăng lên quá nhanh khi bé ghi được điểm cao.
-	const BUBBLE_DIFFICULTY_SETTINGS = {
-		slow:   { baseFall: 18, minFall: 12, scoreFactor: 0.04, nextDelay: 2200 },
-		normal: { baseFall: 14, minFall: 9,  scoreFactor: 0.05, nextDelay: 1600 },
-		fast:   { baseFall: 10, minFall: 6,  scoreFactor: 0.06, nextDelay: 1200 }
-	};
-	let bubbleDifficulty = getPData('kid_bubble_difficulty') || 'normal';
 
-	// ==== BẮN CHỮ VŨ TRỤ ====
-	const SHOOTER_DIFFICULTY_SETTINGS = {
-		slow:   { baseFall: 20, minFall: 14, scoreFactor: 0.04, nextDelay: 3000, maxActive: 2 },
-		normal: { baseFall: 15, minFall: 10, scoreFactor: 0.05, nextDelay: 2200, maxActive: 3 },
-		fast:   { baseFall: 11, minFall: 7,  scoreFactor: 0.06, nextDelay: 1500, maxActive: 4 }
-	};
+			const BUBBLE_DIFFICULTY_SETTINGS = {
+			slow:   { baseFall: 18, minFall: 12, scoreFactor: 0.04, nextDelay: 2200 },
+			normal: { baseFall: 14, minFall: 9,  scoreFactor: 0.05, nextDelay: 1600 },
+			fast:   { baseFall: 10, minFall: 6,  scoreFactor: 0.06, nextDelay: 1200 }
+			};
+			
+		let bubbleDifficulty = getPData('kid_bubble_difficulty') || 'normal';
+
+			// ==== BẮN CHỮ VŨ TRỤ ====
+			const SHOOTER_DIFFICULTY_SETTINGS = {
+			slow:   { baseFall: 20, minFall: 14, scoreFactor: 0.04, nextDelay: 3000, maxActive: 2 },
+			normal: { baseFall: 15, minFall: 10, scoreFactor: 0.05, nextDelay: 2200, maxActive: 3 },
+			fast:   { baseFall: 11, minFall: 7,  scoreFactor: 0.06, nextDelay: 1500, maxActive: 4 }
+			};
+
         let shooterDifficulty = getPData('kid_shooter_difficulty') || 'normal';
 
         // ==== GHÉP TỪ (Word Scramble) ====
@@ -4894,111 +4889,36 @@ function ensureDailyQuestsHealed() {
             document.getElementById('shooter-empty').classList.add('hidden');
         }
 
-function startShooterGame() {
-    if (vocabulary.length < 5) {
-        document.getElementById('shooter-start-screen').classList.add('hidden');
-        document.getElementById('shooter-play-screen').classList.add('hidden');
-        document.getElementById('shooter-empty').classList.remove('hidden');
-        return;
-    }
+        function startShooterGame() {
+            if (vocabulary.length < 5) {
+                document.getElementById('shooter-start-screen').classList.add('hidden');
+                document.getElementById('shooter-play-screen').classList.add('hidden');
+                document.getElementById('shooter-empty').classList.remove('hidden');
+                return;
+            }
 
-    // 1. HỦY TIMER CŨ (Tránh trùng lặp khi restart game)
-    if (typeof shooterSpawnTimer !== 'undefined' && shooterSpawnTimer) {
-        clearTimeout(shooterSpawnTimer);
-        shooterSpawnTimer = null;
-    }
+            document.getElementById('shooter-game-area').innerHTML = '';
+            shooterActiveList = [];
+            shooterScore = 0;
+            shooterLives = 3;
+            shooterLockedId = null;
+            shooterLastTypedLen = 0;
+            shooterGameRunning = true;
 
-    // 2. RESET DỮ LIỆU
-    document.getElementById('shooter-game-area').innerHTML = '';
-    shooterActiveList = [];
-    shooterScore = 0;
-    shooterLives = 3;
-    shooterLockedId = null;
-    shooterLastTypedLen = 0;
-    shooterGameRunning = true;
+            document.getElementById('shooter-score-text').innerText = `🌠 Đã bắn: 0`;
+            renderShooterLives();
+            renderShooterSpaceBackground();
 
-    // 4. CẬP NHẬT GIAO DIỆN & NỀN
-    document.getElementById('shooter-score-text').innerText = `🌠 Đã bắn: 0`;
-    renderShooterLives();
-    renderShooterSpaceBackground();
+            document.getElementById('shooter-start-screen').classList.add('hidden');
+            document.getElementById('shooter-empty').classList.add('hidden');
+            document.getElementById('shooter-play-screen').classList.remove('hidden');
 
-    // 3. TẠO LẠI PHI THUYỀN TRONG KHU VỰC CHƠI (Tránh bị xoá mất do innerHTML = '')
-    renderShooterShip();
-
-
-
-    // Reset góc xoay phi thuyền về thẳng đứng
-    moveShooterShipTo(null);
-
-    // 5. CHUYỂN MÀN HÌNH
-    document.getElementById('shooter-start-screen').classList.add('hidden');
-    document.getElementById('shooter-empty').classList.add('hidden');
-    document.getElementById('shooter-play-screen').classList.remove('hidden');
-
-    // 6. FOCUS INPUT
-    const input = document.getElementById('shooter-input');
-    input.value = '';
-    input.disabled = false;
-    setTimeout(() => input.focus(), 150);
-
-    // 7. BẮT ĐẦU SPAWN TỪ MỚI
-    scheduleNextShooterWord(600);
-}
-
-// --- HÀM BỔ TRỢ: Render lại phi thuyền ---
-function renderShooterShip() {
-    const gameArea = document.getElementById('shooter-game-area');
-    if (!gameArea) return;
-
-    // 1. Xóa TẤT CẢ các phi thuyền cũ đang tồn tại trong khung chơi (tránh chồng lấn)
-    const existingShips = gameArea.querySelectorAll('#shooter-ship, .shooter-ship');
-    existingShips.forEach(ship => ship.remove());
-
-    // 2. Tạo duy nhất 1 phi thuyền mới
-    const ship = document.createElement('div');
-    ship.id = 'shooter-ship';
-    ship.className = 'shooter-ship';
-    
-    // Đặt icon/ảnh phi thuyền của bạn vào đây
-    ship.innerHTML = '🚀'; 
-    // Hoặc nếu bạn dùng thẻ img:
-    // ship.innerHTML = `<img src="link-anh-phi-thuyen.png" class="w-12 h-12 pointer-events-none">`;
-
-    gameArea.appendChild(ship);
-}
-
-// Hàm xoay phi thuyền hướng về phần tử thiên thạch (targetAsteroidEl)
-function rotateShipToTarget(targetAsteroidEl) {
-    const shipEl = document.getElementById('shooter-ship');
-    if (!shipEl) return;
-
-    // Nếu không có mục tiêu, trả phi thuyền về tư thế chĩa thẳng lên (0 độ)
-    if (!targetAsteroidEl) {
-        shipEl.style.transform = 'translateX(-50%) rotate(0deg)';
-        return;
-    }
-
-    // Lấy tọa độ tâm phi thuyền
-    const shipRect = shipEl.getBoundingClientRect();
-    const shipX = shipRect.left + shipRect.width / 2;
-    const shipY = shipRect.top + shipRect.height / 2;
-
-    // Lấy tọa độ tâm thiên thạch đang bắn
-    const targetRect = targetAsteroidEl.getBoundingClientRect();
-    const targetX = targetRect.left + targetRect.width / 2;
-    const targetY = targetRect.top + targetRect.height / 2;
-
-    // Tính khoảng cách dy, dx
-    const dx = targetX - shipX;
-    const dy = targetY - shipY;
-
-    // Tính góc xoay bằng Rada -> Chuyển sang Độ (Degrees)
-    // +90 độ vì icon 🚀 có mũi chĩa lên trên (trục Y hướng lên)
-    const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
-
-    // Cập nhật CSS xoay phi thuyền
-    shipEl.style.transform = `translateX(-50%) rotate(${angleDeg}deg)`;
-}
+            const input = document.getElementById('shooter-input');
+            input.value = '';
+            input.disabled = false;
+            setTimeout(() => input.focus(), 150);
+            scheduleNextShooterWord(600);
+        }
 
         // Vẽ nền bầu trời sao lấp lánh và phi thuyền neo ở đáy khung chơi
         function renderShooterSpaceBackground() {
@@ -5015,10 +4935,92 @@ function rotateShipToTarget(targetAsteroidEl) {
                 star.style.animationDelay = `${(Math.random() * 2).toFixed(2)}s`;
                 area.appendChild(star);
             }
-            const ship = document.createElement('div');
+            const ship = document.createElement('canvas');
             ship.id = 'shooter-ship';
-            ship.innerText = '🚀';
             area.appendChild(ship);
+            drawShooterShipCanvas();
+        }
+
+        // Vẽ hình phi thuyền bằng canvas (thay cho icon emoji) để mũi phi thuyền luôn chĩa thẳng lên trên
+        // một cách chính xác, xoay theo góc bao nhiêu độ cũng khớp chuẩn, không bị lệch do font/emoji mỗi máy vẽ khác nhau
+        function drawShooterShipCanvas() {
+            const canvas = document.getElementById('shooter-ship');
+            if (!canvas) return;
+            const dpr = window.devicePixelRatio || 1;
+
+            // Kích thước "gốc" dùng để tính toạ độ vẽ bên dưới - GIỮ NGUYÊN, đừng đổi 2 số này
+            const w = 34, h = 46;
+            // Hệ số phóng to phi thuyền hiển thị - MUỐN TÀU TO HƠN thì tăng số này lên (vd 2, 2.5...)
+            const scale = 1;
+
+            canvas.width = w * scale * dpr;
+            canvas.height = h * scale * dpr;
+            canvas.style.width = `${w * scale}px`;
+            canvas.style.height = `${h * scale}px`;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr * scale, dpr * scale);
+            ctx.clearRect(0, 0, w, h);
+
+            const cx = w / 2;
+
+            // Ngọn lửa phụt ra từ đuôi phi thuyền
+            const flameGrad = ctx.createLinearGradient(0, h - 8, 0, h + 12);
+            flameGrad.addColorStop(0, '#fef08a');
+            flameGrad.addColorStop(0.55, '#fb923c');
+            flameGrad.addColorStop(1, 'rgba(239,68,68,0)');
+            ctx.fillStyle = flameGrad;
+            ctx.beginPath();
+            ctx.moveTo(cx - 7, h - 9);
+            ctx.quadraticCurveTo(cx, h + 13, cx + 7, h - 9);
+            ctx.closePath();
+            ctx.fill();
+
+            // 2 cánh đuôi (fin) hai bên
+            ctx.fillStyle = '#6366f1';
+            ctx.beginPath();
+            ctx.moveTo(cx - 6, h - 16);
+            ctx.lineTo(cx - 16, h - 3);
+            ctx.lineTo(cx - 5, h - 8);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cx + 6, h - 16);
+            ctx.lineTo(cx + 16, h - 3);
+            ctx.lineTo(cx + 5, h - 8);
+            ctx.closePath();
+            ctx.fill();
+
+            // Thân phi thuyền
+            ctx.fillStyle = '#f1f5f9';
+            ctx.beginPath();
+            ctx.moveTo(cx, 3);
+            ctx.quadraticCurveTo(cx + 9, 11, cx + 8, h - 13);
+            ctx.quadraticCurveTo(cx, h - 5, cx - 8, h - 13);
+            ctx.quadraticCurveTo(cx - 9, 11, cx, 3);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Mũi phi thuyền nhọn, chĩa thẳng lên trên (0°)
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.moveTo(cx, 0);
+            ctx.quadraticCurveTo(cx + 7, 10, cx + 5, 16);
+            ctx.lineTo(cx - 5, 16);
+            ctx.quadraticCurveTo(cx - 7, 10, cx, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            // Cửa sổ tròn
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(cx, h / 2 - 1, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#0369a1';
+            ctx.lineWidth = 1;
+            ctx.stroke();
         }
 
         function renderShooterLives() {
@@ -5046,57 +5048,49 @@ function rotateShipToTarget(targetAsteroidEl) {
             ).join('');
         }
 
- function spawnShooterWord() {
-    if (!shooterGameRunning) return;
+        function spawnShooterWord() {
+            if (!shooterGameRunning) return;
 
-    const settings = SHOOTER_DIFFICULTY_SETTINGS[shooterDifficulty] || SHOOTER_DIFFICULTY_SETTINGS.normal;
-    if (shooterActiveList.length >= settings.maxActive) {
-        scheduleNextShooterWord(400); // Đã đủ thiên thạch trên màn hình, thử lại sau một chút
-        return;
-    }
+            const settings = SHOOTER_DIFFICULTY_SETTINGS[shooterDifficulty] || SHOOTER_DIFFICULTY_SETTINGS.normal;
+            if (shooterActiveList.length >= settings.maxActive) {
+                scheduleNextShooterWord(400); // Đã đủ thiên thạch trên màn hình, thử lại sau một chút
+                return;
+            }
 
-    const area = document.getElementById('shooter-game-area');
-    if (!area || vocabulary.length === 0) return;
+            const area = document.getElementById('shooter-game-area');
+            if (!area || vocabulary.length === 0) return;
 
-    // Ưu tiên từ chưa xuất hiện đồng thời trên màn hình để tránh trùng lặp gây rối cho bé
-    const freshPool = vocabulary.filter(v => !shooterActiveList.some(a => a.wordId === v.id));
-    const word = pickWeightedWord(freshPool.length ? freshPool : vocabulary);
-    if (!word) { scheduleNextShooterWord(400); return; }
+            // Ưu tiên từ chưa xuất hiện đồng thời trên màn hình để tránh trùng lặp gây rối cho bé
+            const freshPool = vocabulary.filter(v => !shooterActiveList.some(a => a.wordId === v.id));
+            const word = pickWeightedWord(freshPool.length ? freshPool : vocabulary);
+            if (!word) { scheduleNextShooterWord(400); return; }
 
-    const id = shooterNextId++;
-    const fallDuration = Math.max(settings.minFall, settings.baseFall - shooterScore * settings.scoreFactor).toFixed(2);
+            const id = shooterNextId++;
+            const leftPct = 8 + Math.random() * 50;
+            const fallDuration = Math.max(settings.minFall, settings.baseFall - shooterScore * settings.scoreFactor).toFixed(2);
 
-    const el = document.createElement('div');
-    el.className = 'shooter-word';
-    el.style.top = '-10%';
-    el.innerHTML = buildShooterLetterHTML(word.english, 0);
+            const el = document.createElement('div');
+            el.className = 'shooter-word';
+            el.style.left = `${leftPct}%`;
+            el.style.top = '-10%';
+            el.innerHTML = buildShooterLetterHTML(word.english, 0);
+            area.appendChild(el);
 
-    // 1. Chèn phần tử vào DOM trước để trình duyệt đo chiều rộng thực tế
-    area.appendChild(el);
+            const wordObj = { id, el, target: word.english, wordId: word.id, meaning: word.vietnamese, destroyed: false, firing: false };
+            shooterActiveList.push(wordObj);
 
-    // 2. Tính toán vị trí left an toàn theo Pixel (chống bị tràn lề)
-    const padding = 16; // Khoảng cách đệm cách 2 mép lề
-    const areaWidth = area.clientWidth;
-    const wordWidth = el.offsetWidth;
-    const maxLeft = Math.max(padding, areaWidth - wordWidth - padding);
-    const randomLeft = padding + Math.random() * (maxLeft - padding);
+            requestAnimationFrame(() => {
+                el.style.transition = `top ${fallDuration}s linear`;
+                el.style.top = '102%';
+            });
 
-    el.style.left = `${randomLeft}px`;
+            el.addEventListener('transitionend', () => {
+                if (!wordObj.destroyed && !wordObj.firing) missShooterWord(wordObj);
+            });
 
-    const wordObj = { id, el, target: word.english, wordId: word.id, meaning: word.vietnamese, destroyed: false, firing: false };
-    shooterActiveList.push(wordObj);
+            scheduleNextShooterWord();
+        }
 
-    requestAnimationFrame(() => {
-        el.style.transition = `top ${fallDuration}s linear`;
-        el.style.top = '102%';
-    });
-
-    el.addEventListener('transitionend', () => {
-        if (!wordObj.destroyed && !wordObj.firing) missShooterWord(wordObj);
-    });
-
-    scheduleNextShooterWord();
-}
         // Lấy vị trí thực tế (px) hiện tại của thiên thạch bên trong khung chơi, dùng khi đóng băng để nổ
         function getShooterElPosition(el, area) {
             const elRect = el.getBoundingClientRect();
@@ -5157,38 +5151,37 @@ function rotateShipToTarget(targetAsteroidEl) {
                 input.value = '';
                 shooterLockedId = null;
                 shooterLastTypedLen = 0;
-				// Thêm dòng này: Trả phi thuyền về hướng thẳng đứng sau khi diệt xong 1 từ
-				setTimeout(() => moveShooterShipTo(null), 100);
             }
         }
 
-        // Xoay/di chuyển phi thuyền theo phương ngang tới đúng hướng của thiên thạch đang được nhắm bắn
-function moveShooterShipTo(target) {
-    const ship = document.getElementById('shooter-ship');
-    if (!ship) return;
+        // Xoay mũi phi thuyền theo đúng hướng của thiên thạch đang được nhắm bắn (thân phi thuyền luôn đứng cố định ở giữa)
+        function moveShooterShipTo(target) {
+            const ship = document.getElementById('shooter-ship');
+            const area = document.getElementById('shooter-game-area');
+            if (!ship || !area) return;
 
-    // Khi không gõ từ nào -> Quay về hướng thẳng đứng (-45deg)
-    if (!target || !target.el) {
-        ship.style.transform = 'translateX(-50%) rotate(-45deg)';
-        return;
-    }
+            if (!target) {
+                ship.style.transform = 'translateX(-50%) rotate(0deg)';
+                return;
+            }
 
-    const shipRect = ship.getBoundingClientRect();
-    const shipX = shipRect.left + shipRect.width / 2;
-    const shipY = shipRect.top + shipRect.height / 2;
+            const areaRect = area.getBoundingClientRect();
+            const shipRect = ship.getBoundingClientRect();
+            const wordRect = target.el.getBoundingClientRect();
 
-    const targetRect = target.el.getBoundingClientRect();
-    const targetX = targetRect.left + targetRect.width / 2;
-    const targetY = targetRect.top + targetRect.height / 2;
+            const shipCenterX = (shipRect.left - areaRect.left) + shipRect.width / 2;
+            const shipCenterY = (shipRect.top - areaRect.top) + shipRect.height / 2;
+            const targetCenterX = (wordRect.left - areaRect.left) + wordRect.width / 2;
+            const targetCenterY = (wordRect.top - areaRect.top) + wordRect.height / 2;
 
-    const dx = targetX - shipX;
-    const dy = targetY - shipY;
+            const dx = targetCenterX - shipCenterX;
+            const dy = targetCenterY - shipCenterY;
+            const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI;
+            // Phi thuyền canvas mặc định chĩa mũi thẳng lên trên (tương đương -90° theo quy ước atan2), nên cộng thêm 90° để bù trừ
+            const rotation = angleDeg + 90;
 
-    // Thay +90 bằng +45 để bù 45 độ nghiêng của ảnh
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI) + 45;
-
-    ship.style.transform = `translateX(-50%) rotate(${angle.toFixed(2)}deg)`;
-}
+            ship.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+        }
 
         // Bắn 1 viên đạn từ phi thuyền bay lên đúng vị trí thiên thạch hiện tại.
         // isFinal = true là phát đạn ứng với chữ cái cuối cùng - chỉ khi đạn này "trúng" mới tính điểm và cho nổ.
@@ -5278,7 +5271,7 @@ function moveShooterShipTo(target) {
 
             playSoundEffect('correct');
             addKidAssets(8, 4);
-            // updateQuestProgress('shooter_correct');
+            updateQuestProgress('shooter_correct');
             recordWordAttempt(wordObj.wordId, true);
         }
 
