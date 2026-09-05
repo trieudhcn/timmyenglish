@@ -2399,8 +2399,7 @@
             { id: 'memory_correct', label: 'Trí Nhớ', icon: '🧠', target: 8, reward: { xp: 15, coins: 10 } },
             { id: 'bubble_correct', label: 'Bong Bóng', icon: '💧', target: 12, reward: { xp: 15, coins: 10 } },
             { id: 'speaking_correct', label: 'Phát Âm', icon: '🎤', target: 8, reward: { xp: 15, coins: 10 } },
-            { id: 'scramble_correct', label: 'Ghép Từ', icon: '🔤', target: 10, reward: { xp: 15, coins: 10 } },
-			{ id: 'shooter_correct', label: 'Bắn Chữ', icon: '🚀', target: 15, reward: { xp: 15, coins: 10 } }
+            { id: 'scramble_correct', label: 'Ghép Từ', icon: '🔤', target: 10, reward: { xp: 15, coins: 10 } }
         ];
         const DAILY_CHEST_REWARD = { xp: 30, coins: 50 };
 
@@ -2410,25 +2409,29 @@
         }
 
         let dailyQuests = JSON.parse(getPData('daily_quests')) || null;
-        function ensureDailyQuestsHealed() {
-            const todayKey = getLocalTodayKey();
-            if (!dailyQuests || dailyQuests.date !== todayKey) {
-                dailyQuests = {
-                    date: todayKey,
-                    chestClaimed: false,
-                    quests: DAILY_QUEST_TEMPLATE.map(q => ({ id: q.id, progress: 0, done: false, rewardGiven: false }))
-                };
-            } else {
-                // Tự bổ sung nhiệm vụ mới nếu ứng dụng vừa được cập nhật thêm quest (kể cả sau khi đồng bộ dữ liệu cũ từ cloud/file)
-                DAILY_QUEST_TEMPLATE.forEach(t => {
-                    if (!dailyQuests.quests.some(q => q.id === t.id)) {
-                        dailyQuests.quests.push({ id: t.id, progress: 0, done: false, rewardGiven: false });
-                        dailyQuests.chestClaimed = false; // Mở lại rương vì vừa có nhiệm vụ mới
-                    }
-                });
+function ensureDailyQuestsHealed() {
+    const todayKey = getLocalTodayKey();
+    if (!dailyQuests || dailyQuests.date !== todayKey) {
+        dailyQuests = {
+            date: todayKey,
+            chestClaimed: false,
+            quests: DAILY_QUEST_TEMPLATE.map(q => ({ id: q.id, progress: 0, done: false, rewardGiven: false }))
+        };
+    } else {
+        // 1. LỌC BỎ các nhiệm vụ cũ không còn tồn tại trong DAILY_QUEST_TEMPLATE
+        const validIds = new Set(DAILY_QUEST_TEMPLATE.map(t => t.id));
+        dailyQuests.quests = dailyQuests.quests.filter(q => validIds.has(q.id));
+
+        // 2. Bổ sung nhiệm vụ mới nếu template có thêm quest
+        DAILY_QUEST_TEMPLATE.forEach(t => {
+            if (!dailyQuests.quests.some(q => q.id === t.id)) {
+                dailyQuests.quests.push({ id: t.id, progress: 0, done: false, rewardGiven: false });
+                dailyQuests.chestClaimed = false; // Mở lại rương vì vừa có nhiệm vụ mới
             }
-            setPData('daily_quests', JSON.stringify(dailyQuests));
-        }
+        });
+    }
+    setPData('daily_quests', JSON.stringify(dailyQuests));
+}
 
         (function initDailyQuestsIfNeeded() {
             ensureDailyQuestsHealed();
@@ -2834,43 +2837,51 @@
         }
 
         // Vẽ lại danh sách nhiệm vụ hàng ngày trên Dashboard
-        function renderDailyQuests() {
-            const container = document.getElementById('daily-quests-container');
-            if (!container) return;
+		function renderDailyQuests() {
+			const container = document.getElementById('daily-quests-container');
+			if (!container) return;
 
-            ensureDailyQuestsHealed(); // Đảm bảo luôn đủ quest, kể cả khi dữ liệu vừa được đồng bộ từ cloud/file cũ
+			ensureDailyQuestsHealed(); // Đảm bảo làm sạch và đồng bộ danh sách nhiệm vụ
 
-            container.innerHTML = '';
+			container.innerHTML = '';
 
-            dailyQuests.quests.forEach(q => {
-                const template = DAILY_QUEST_TEMPLATE.find(t => t.id === q.id);
-                const pct = Math.min(100, Math.round((q.progress / template.target) * 100));
-                const row = document.createElement('div');
-                row.className = `p-2.5 rounded-2xl border-2 ${q.done ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100'} flex flex-col items-center text-center gap-1`;
-                row.innerHTML = `
-                    <span class="text-lg">${template.icon}</span>
-                    <span class="text-[10px] sm:text-[11px] font-black leading-tight ${q.done ? 'text-emerald-600' : 'text-slate-600'}">${template.label}</span>
-                    <span class="text-[9px] font-bold ${q.done ? 'text-emerald-500' : 'text-slate-400'}">${q.progress}/${template.target} ${q.done ? '✅' : ''}</span>
-                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                        <div class="h-full ${q.done ? 'bg-emerald-500' : 'bg-gradient-to-r from-sky-400 to-pink-400'} transition-all duration-500" style="width: ${pct}%;"></div>
-                    </div>
-                `;
-                container.appendChild(row);
-            });
+			// 1. DUYỆT THEO DAILY_QUEST_TEMPLATE ĐỂ TRÁNH LỖI KHI XÓA/SỬA QUEST
+			DAILY_QUEST_TEMPLATE.forEach(template => {
+				// Tìm dữ liệu tiến độ trong dailyQuests, nếu không thấy thì dùng mặc định
+				const q = dailyQuests.quests.find(item => item.id === template.id) || { progress: 0, done: false };
+				const pct = Math.min(100, Math.round((q.progress / template.target) * 100));
 
-            const allDone = dailyQuests.quests.every(q => q.done);
-            const chestBtn = document.getElementById('daily-chest-btn');
-            if (chestBtn) {
-                if (dailyQuests.chestClaimed) {
-                    chestBtn.classList.add('hidden');
-                } else if (allDone) {
-                    chestBtn.classList.remove('hidden');
-                    chestBtn.classList.add('animate-happy');
-                } else {
-                    chestBtn.classList.add('hidden');
-                }
-            }
-        }
+				const row = document.createElement('div');
+				row.className = `p-2.5 rounded-2xl border-2 ${q.done ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100'} flex flex-col items-center text-center gap-1`;
+				row.innerHTML = `
+					<span class="text-lg">${template.icon}</span>
+					<span class="text-[10px] sm:text-[11px] font-black leading-tight ${q.done ? 'text-emerald-600' : 'text-slate-600'}">${template.label}</span>
+					<span class="text-[9px] font-bold ${q.done ? 'text-emerald-500' : 'text-slate-400'}">${q.progress}/${template.target} ${q.done ? '✅' : ''}</span>
+					<div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+						<div class="h-full ${q.done ? 'bg-emerald-500' : 'bg-gradient-to-r from-sky-400 to-pink-400'} transition-all duration-500" style="width: ${pct}%;"></div>
+					</div>
+				`;
+				container.appendChild(row);
+			});
+
+			// 2. KIỂM TRA TẤT CẢ QUEST TRONG TEMPLATE ĐÃ HOÀN THÀNH CHƯA
+			const allDone = DAILY_QUEST_TEMPLATE.every(t => {
+				const q = dailyQuests.quests.find(item => item.id === t.id);
+				return q && q.done;
+			});
+
+			const chestBtn = document.getElementById('daily-chest-btn');
+			if (chestBtn) {
+				if (dailyQuests.chestClaimed) {
+					chestBtn.classList.add('hidden');
+				} else if (allDone) {
+					chestBtn.classList.remove('hidden');
+					chestBtn.classList.add('animate-happy');
+				} else {
+					chestBtn.classList.add('hidden');
+				}
+			}
+		}
 
         function triggerConfettiFireworks() {
             for (let i = 0; i < 50; i++) {
