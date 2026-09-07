@@ -2702,47 +2702,44 @@
 		    const cleanWord = word.trim().toLowerCase();
 		    let ipaResult = { uk: '', us: '' };
 		
-		    try {
+		    const tryFetch = async (url, timeoutMs = 4000) => {
 		        const controller = new AbortController();
-		        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
-		
-		        const response = await fetch(
-		            `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleanWord)}`,
-		            { signal: controller.signal }
-		        );
-		        clearTimeout(timeoutId);
-		
-		        if (!response.ok) return ipaResult;
-		
-		        const data = await response.json();
-		        if (!data || data.length === 0) return ipaResult;
-		        const entry = data[0];
-		
-		        if (entry.phonetic) {
-		            ipaResult.uk = entry.phonetic;
-		            ipaResult.us = entry.phonetic;
+		        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+		        try {
+		            const res = await fetch(url, { signal: controller.signal });
+		            clearTimeout(timeoutId);
+		            if (!res.ok) return null;
+		            return await res.json();
+		        } catch (e) {
+		            clearTimeout(timeoutId);
+		            return null;
 		        }
+		    };
 		
-		        if (entry.phonetics && entry.phonetics.length > 0) {
-		            entry.phonetics.forEach(p => {
-		                if (p.text) {
-		                    if (p.audio && p.audio.includes('-uk')) {
-		                        ipaResult.uk = p.text;
-		                    } else if (p.audio && p.audio.includes('-us')) {
-		                        ipaResult.us = p.text;
-		                    } else {
-		                        if (!ipaResult.uk) ipaResult.uk = p.text;
-		                        if (!ipaResult.us) ipaResult.us = p.text;
-		                    }
-		                }
-		            });
-		        }
-		    } catch (error) {
-		        console.error("Lỗi lấy phiên âm tự động (hoặc quá thời gian chờ):", error);
+		    // Nguồn 1: dictionaryapi.dev
+		    let data = await tryFetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleanWord)}`);
+		
+		    // Nguồn 2 (dự phòng): bản wrapper khác, thử thêm 1 lần nữa với timeout ngắn hơn
+		    if (!data) {
+		        const backup = await tryFetch(`https://dictionary-api-7hmy.onrender.com/define?word=${encodeURIComponent(cleanWord)}`, 3000);
+		        if (backup && backup.phonetics) data = [backup]; // chuẩn hoá về dạng mảng giống dictionaryapi.dev
+		    }
+		
+		    if (!data || (Array.isArray(data) && data.length === 0)) return ipaResult;
+		
+		    const entry = Array.isArray(data) ? data[0] : data;
+		    if (entry.phonetic) { ipaResult.uk = entry.phonetic; ipaResult.us = entry.phonetic; }
+		    if (entry.phonetics && entry.phonetics.length > 0) {
+		        entry.phonetics.forEach(p => {
+		            if (p.text) {
+		                if (p.audio && p.audio.includes('-uk')) ipaResult.uk = p.text;
+		                else if (p.audio && p.audio.includes('-us')) ipaResult.us = p.text;
+		                else { if (!ipaResult.uk) ipaResult.uk = p.text; if (!ipaResult.us) ipaResult.us = p.text; }
+		            }
+		        });
 		    }
 		    return ipaResult;
 		}
-
         // Phát âm thanh thông báo vui tai
         function playSoundEffect(type) {
             try {
