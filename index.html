@@ -2699,41 +2699,49 @@
 
         // Tự động tìm kiếm và trích xuất dữ liệu IPA từ API từ điển mở
         async function fetchAutoIPA(word) {
-            const cleanWord = word.trim().toLowerCase();
-            let ipaResult = { uk: '', us: '' };
-            
-            try {
-                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleanWord)}`);
-                if (!response.ok) return ipaResult;
-                
-                const data = await response.json();
-                if (!data || data.length === 0) return ipaResult;
-                const entry = data[0];
-                
-                if (entry.phonetic) {
-                    ipaResult.uk = entry.phonetic;
-                    ipaResult.us = entry.phonetic;
-                }
-                
-                if (entry.phonetics && entry.phonetics.length > 0) {
-                    entry.phonetics.forEach(p => {
-                        if (p.text) {
-                            if (p.audio && p.audio.includes('-uk')) {
-                                ipaResult.uk = p.text;
-                            } else if (p.audio && p.audio.includes('-us')) {
-                                ipaResult.us = p.text;
-                            } else {
-                                if (!ipaResult.uk) ipaResult.uk = p.text;
-                                if (!ipaResult.us) ipaResult.us = p.text;
-                            }
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error("Lỗi lấy phiên âm tự động:", error);
-            }
-            return ipaResult;
-        }
+		    const cleanWord = word.trim().toLowerCase();
+		    let ipaResult = { uk: '', us: '' };
+		
+		    try {
+		        const controller = new AbortController();
+		        const timeoutId = setTimeout(() => controller.abort(), 4000); // 4s timeout
+		
+		        const response = await fetch(
+		            `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleanWord)}`,
+		            { signal: controller.signal }
+		        );
+		        clearTimeout(timeoutId);
+		
+		        if (!response.ok) return ipaResult;
+		
+		        const data = await response.json();
+		        if (!data || data.length === 0) return ipaResult;
+		        const entry = data[0];
+		
+		        if (entry.phonetic) {
+		            ipaResult.uk = entry.phonetic;
+		            ipaResult.us = entry.phonetic;
+		        }
+		
+		        if (entry.phonetics && entry.phonetics.length > 0) {
+		            entry.phonetics.forEach(p => {
+		                if (p.text) {
+		                    if (p.audio && p.audio.includes('-uk')) {
+		                        ipaResult.uk = p.text;
+		                    } else if (p.audio && p.audio.includes('-us')) {
+		                        ipaResult.us = p.text;
+		                    } else {
+		                        if (!ipaResult.uk) ipaResult.uk = p.text;
+		                        if (!ipaResult.us) ipaResult.us = p.text;
+		                    }
+		                }
+		            });
+		        }
+		    } catch (error) {
+		        console.error("Lỗi lấy phiên âm tự động (hoặc quá thời gian chờ):", error);
+		    }
+		    return ipaResult;
+		}
 
         // Phát âm thanh thông báo vui tai
         function playSoundEffect(type) {
