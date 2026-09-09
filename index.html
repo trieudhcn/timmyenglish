@@ -272,23 +272,24 @@
             0% { transform: translateY(-50%) scale(1); opacity: 1; }
             100% { transform: translateY(-50%) scale(2.2); opacity: 0; }
         }
-        .shooter-meaning-toast {
-            position: absolute;
-            font-size: 11px;
-            font-weight: 900;
-            color: #6ee7b7;
-            background: rgba(6, 78, 59, 0.75);
-            padding: 3px 10px;
-            border-radius: 999px;
-            white-space: nowrap;
-            pointer-events: none;
-            animation: shooterToastFloat 0.9s ease forwards;
-        }
-        @keyframes shooterToastFloat {
-            0% { opacity: 0; transform: translateY(0); }
-            15% { opacity: 1; transform: translateY(-4px); }
-            100% { opacity: 0; transform: translateY(-22px); }
-        }
+		.shooter-meaning-toast {
+		    position: absolute;
+		    font-size: 13px;                 /* to hơn chút cho bé dễ đọc, tuỳ chọn */
+		    font-weight: 900;
+		    color: #6ee7b7;
+		    background: rgba(6, 78, 59, 0.85);
+		    padding: 4px 12px;
+		    border-radius: 999px;
+		    white-space: nowrap;
+		    pointer-events: none;
+		    animation: shooterToastFloat 2.2s ease forwards;   /* 0.9s -> 2.2s */
+		}
+		@keyframes shooterToastFloat {
+		    0%   { opacity: 0; transform: translateY(0); }
+		    10%  { opacity: 1; transform: translateY(-4px); }
+		    70%  { opacity: 1; transform: translateY(-16px); }  /* giữ rõ nét lâu hơn */
+		    100% { opacity: 0; transform: translateY(-30px); }
+		}
         .shooter-word-target {
             border-color: #34d399 !important;
             box-shadow: 0 0 12px rgba(52, 211, 153, 0.65);
@@ -5388,7 +5389,7 @@
             toast.style.top = `${pos.top}px`;
             toast.innerText = wordObj.meaning;
             area.appendChild(toast);
-            setTimeout(() => toast.remove(), 900);
+            setTimeout(() => toast.remove(), 2200);
 
             setTimeout(() => el.remove(), 380);
             shooterActiveList = shooterActiveList.filter(w => w.id !== wordObj.id);
