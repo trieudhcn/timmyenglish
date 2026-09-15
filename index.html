@@ -3675,14 +3675,23 @@
             showModal("Khôi phục thành công! 🎉", "Toàn bộ dữ liệu học tập của bé đã được khôi phục đầy đủ!", "success");
         }
 
-        function lookupCambridge(inputId) {
-            const word = document.getElementById(inputId).value.trim();
-            if (!word) {
-                showModal("Thiếu chữ", "Vui lòng nhập một từ tiếng Anh vào ô viết trước nhé!", "info");
-                return;
-            }
-            window.open(`https://dictionary.cambridge.org/dictionary/english/${word.toLowerCase()}`, '_blank');
-        }
+		function lookupCambridge(inputId) {
+			const word = document.getElementById(inputId).value.trim();
+			if (!word) {
+				showModal("Thiếu chữ", "Vui lòng nhập một từ tiếng Anh vào ô viết trước nhé!", "info");
+				return;
+			}
+			const url = `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word.toLowerCase())}`;
+
+			// Tạo thẻ <a> tạm thời rồi bấm bằng JS - đáng tin cậy hơn window.open() trong PWA standalone
+			const a = document.createElement('a');
+			a.href = url;
+			a.target = '_blank';
+			a.rel = 'noopener noreferrer';
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		}
 
         function speakWord(event, accent) {
             if(event) event.stopPropagation(); 
