@@ -2724,9 +2724,13 @@
 			const dataset = await loadLocalIPADataset();
 			if (dataset[cleanWord]) {
 				const entry = dataset[cleanWord];
-				return { uk: entry.uk ? `/${entry.uk}/` : '', us: entry.us ? `/${entry.us}/` : '' };
+				const ukStr = typeof entry.uk === 'string' ? entry.uk : '';
+				const usStr = typeof entry.us === 'string' ? entry.us : '';
+				return {
+					uk: ukStr ? `/${ukStr}/` : '',
+					us: usStr ? `/${usStr}/` : ''
+				};
 			}
-
 			// NGUỒN 2 (dự phòng): Wordnik, chỉ nhận đúng rawType "IPA"
 			const controller = new AbortController();
 			const timeoutId = setTimeout(() => controller.abort(), 4000);
