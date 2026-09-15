@@ -2699,47 +2699,38 @@
         }
 
         // Tự động tìm kiếm và trích xuất dữ liệu IPA từ API từ điển mở
-        async function fetchAutoIPA(word) {
-		    const cleanWord = word.trim().toLowerCase();
-		    let ipaResult = { uk: '', us: '' };
-		
-		    const tryFetch = async (url, timeoutMs = 4000) => {
-		        const controller = new AbortController();
-		        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-		        try {
-		            const res = await fetch(url, { signal: controller.signal });
-		            clearTimeout(timeoutId);
-		            if (!res.ok) return null;
-		            return await res.json();
-		        } catch (e) {
-		            clearTimeout(timeoutId);
-		            return null;
-		        }
-		    };
-		
-		    // Nguồn 1: dictionaryapi.dev
-		    let data = await tryFetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleanWord)}`);
-		
-		    // Nguồn 2 (dự phòng): bản wrapper khác, thử thêm 1 lần nữa với timeout ngắn hơn
-		    if (!data) {
-		        const backup = await tryFetch(`https://dictionary-api-7hmy.onrender.com/define?word=${encodeURIComponent(cleanWord)}`, 3000);
-		        if (backup && backup.phonetics) data = [backup]; // chuẩn hoá về dạng mảng giống dictionaryapi.dev
-		    }
-		
-		    if (!data || (Array.isArray(data) && data.length === 0)) return ipaResult;
-		
-		    const entry = Array.isArray(data) ? data[0] : data;
-		    if (entry.phonetic) { ipaResult.uk = entry.phonetic; ipaResult.us = entry.phonetic; }
-		    if (entry.phonetics && entry.phonetics.length > 0) {
-		        entry.phonetics.forEach(p => {
-		            if (p.text) {
-		                if (p.audio && p.audio.includes('-uk')) ipaResult.uk = p.text;
-		                else if (p.audio && p.audio.includes('-us')) ipaResult.us = p.text;
-		                else { if (!ipaResult.uk) ipaResult.uk = p.text; if (!ipaResult.us) ipaResult.us = p.text; }
-		            }
-		        });
-		    }
-		    return ipaResult;
+        const WORDNIK_API_KEY = "80duyw373uovy5rdp0w3n2k8h5mh2oc3sfjgo6yzl61i6e2qm"; // dán key bạn đăng ký được vào đây
+		async function fetchAutoIPA(word) {
+			const cleanWord = word.trim().toLowerCase();
+			let ipaResult = { uk: '', us: '' };
+
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+			try {
+				const response = await fetch(
+					`https://api.wordnik.com/v4/word.json/${encodeURIComponent(cleanWord)}/pronunciations?useCanonical=true&limit=5&api_key=${WORDNIK_API_KEY}`,
+					{ signal: controller.signal }
+				);
+				clearTimeout(timeoutId);
+				if (!response.ok) return ipaResult;
+
+				const data = await response.json(); // mảng các { raw, rawType, seq, id, word }
+				if (!Array.isArray(data) || data.length === 0) return ipaResult;
+
+				// Wordnik trả nhiều rawType khác nhau (ahd-legacy, gcide-diacritical, IPA...)
+				// ưu tiên bản ghi có rawType chứa "IPA"
+				const ipaEntry = data.find(p => (p.rawType || '').toLowerCase().includes('ipa'));
+				const chosen = ipaEntry || data[0];
+				if (chosen && chosen.raw) {
+					ipaResult.uk = `/${chosen.raw}/`;
+					ipaResult.us = `/${chosen.raw}/`;
+				}
+			} catch (error) {
+				clearTimeout(timeoutId);
+				console.error("Lỗi lấy phiên âm tự động (Wordnik):", error);
+			}
+			return ipaResult;
 		}
         // Phát âm thanh thông báo vui tai
         function playSoundEffect(type) {
