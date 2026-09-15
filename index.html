@@ -2709,23 +2709,24 @@
 
 			try {
 				const response = await fetch(
-					`https://api.wordnik.com/v4/word.json/${encodeURIComponent(cleanWord)}/pronunciations?useCanonical=true&limit=5&api_key=${WORDNIK_API_KEY}`,
+					`https://api.wordnik.com/v4/word.json/${encodeURIComponent(cleanWord)}/pronunciations?useCanonical=true&limit=10&api_key=${WORDNIK_API_KEY}`,
 					{ signal: controller.signal }
 				);
 				clearTimeout(timeoutId);
 				if (!response.ok) return ipaResult;
 
-				const data = await response.json(); // mảng các { raw, rawType, seq, id, word }
+				const data = await response.json();
 				if (!Array.isArray(data) || data.length === 0) return ipaResult;
 
-				// Wordnik trả nhiều rawType khác nhau (ahd-legacy, gcide-diacritical, IPA...)
-				// ưu tiên bản ghi có rawType chứa "IPA"
-				const ipaEntry = data.find(p => (p.rawType || '').toLowerCase().includes('ipa'));
-				const chosen = ipaEntry || data[0];
-				if (chosen && chosen.raw) {
-					ipaResult.uk = `${chosen.raw}`;
-					ipaResult.us = `${chosen.raw}`;
+				// CHỈ lấy đúng rawType = "IPA" - tuyệt đối không fallback sang AHD/GCIDE
+				// vì các kiểu đó không phải IPA, hiển thị nhầm sẽ dạy sai ký hiệu cho bé
+				const ipaEntries = data.filter(p => (p.rawType || '').trim().toUpperCase() === 'IPA');
+
+				if (ipaEntries.length > 0) {
+					ipaResult.uk = `/${ipaEntries[0].raw}/`;
+					ipaResult.us = `/${(ipaEntries[1] || ipaEntries[0]).raw}/`;
 				}
+				// Không có bản ghi IPA thật -> để trống, để phụ huynh tự nhập tay hoặc tra Cambridge
 			} catch (error) {
 				clearTimeout(timeoutId);
 				console.error("Lỗi lấy phiên âm tự động (Wordnik):", error);
