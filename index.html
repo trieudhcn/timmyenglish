@@ -2723,8 +2723,8 @@
 				const ipaEntry = data.find(p => (p.rawType || '').toLowerCase().includes('ipa'));
 				const chosen = ipaEntry || data[0];
 				if (chosen && chosen.raw) {
-					ipaResult.uk = `/${chosen.raw}/`;
-					ipaResult.us = `/${chosen.raw}/`;
+					ipaResult.uk = `${chosen.raw}`;
+					ipaResult.us = `${chosen.raw}`;
 				}
 			} catch (error) {
 				clearTimeout(timeoutId);
